@@ -1,0 +1,10 @@
+* text=auto
+licenses/** -whitespace
+*.cpp text eol=lf
+*.hpp text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.ps1 text eol=lf
+*.iss text eol=lf
+*.bat text eol=crlf
+*.ico binary

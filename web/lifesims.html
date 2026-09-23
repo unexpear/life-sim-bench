@@ -1,0 +1,852 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later.
+     Langton rule table: see THIRD_PARTY_NOTICES.md and licenses/Golly.txt. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A collection of life simulations</title>
+<style>
+:root{
+  --bg:#0b0e11; --panel:#12181d; --line:#222c34; --ink:#dde6ec; --dim:#7a8b96;
+  --amber:#f2c14e; --acc:#5ad1c4; --red:#d9534f; --violet:#9b7ae6; --good:#7bd88f;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:13px/1.55 var(--mono);overflow:hidden}
+#app{display:grid;grid-template-columns:250px 1fr 320px;height:100vh;gap:1px;background:var(--line)}
+
+/* ── index ── */
+#index{background:var(--panel);overflow-y:auto;padding-bottom:40px}
+#index h1{font-size:12px;letter-spacing:.22em;color:var(--dim);font-weight:400;
+          padding:16px 14px 4px;margin:0;text-transform:uppercase}
+#index .sub{padding:0 14px 14px;font-size:11px;color:var(--dim);border-bottom:1px solid var(--line)}
+.era{padding:14px 14px 5px;font-size:10px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase}
+.item{padding:7px 14px;cursor:pointer;border-left:2px solid transparent;
+      transition:background 150ms ease-out,border-left-color 150ms ease-out}
+.item:hover{background:#182028}
+.item.on{background:#1a232b;border-left-color:var(--acc)}
+.item .n{font-size:12.5px}
+.item .y{font-size:10.5px;color:var(--dim)}
+.item.on .n{color:var(--acc)}
+.rep{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.rep.yes{background:var(--good)} .rep.no{background:#3a4750} .rep.part{background:var(--amber)}
+
+/* ── stage ── */
+#stage{background:#080b0e;position:relative;display:flex;flex-direction:column;overflow:hidden}
+#cv{flex:1;width:100%;image-rendering:pixelated;display:block;min-height:0}
+#bar{background:var(--panel);border-top:1px solid var(--line);padding:8px 12px;
+     display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+#bar .gen{margin-left:auto;font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+#rbar{background:#10161b;border-top:1px solid var(--line);padding:7px 12px;
+      display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+#rbar .rg{display:flex;flex-direction:column;gap:2px;min-width:96px}
+#rbar label{font-size:10px;letter-spacing:.12em;color:var(--dim);text-transform:uppercase;
+            display:flex;justify-content:space-between;gap:8px}
+#rbar label b{color:var(--acc);font-variant-numeric:tabular-nums}
+#rbar input[type=range]{width:100%;accent-color:var(--acc);margin:0}
+#rbar .fps{margin-left:auto;font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+#cv{cursor:crosshair}
+#cv.drag{cursor:grabbing}
+button{font:inherit;font-size:11.5px;background:#182028;color:var(--ink);
+       border:1px solid var(--line);padding:6px 11px;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--acc);color:var(--acc)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.on{background:var(--acc);color:#06231f;border-color:var(--acc)}
+
+/* ── notes ── */
+#notes{background:var(--panel);overflow-y:auto;padding:0 0 40px}
+#notes h2{font-size:15px;margin:16px 14px 2px;letter-spacing:.01em}
+#notes .who{margin:0 14px 12px;font-size:11px;color:var(--dim)}
+.sec{padding:11px 14px 4px;font-size:10px;letter-spacing:.2em;color:var(--dim);
+     border-bottom:1px solid var(--line);margin:8px 0 8px;text-transform:uppercase}
+#notes p{margin:0 14px 10px;font-size:12.5px;color:var(--ink)}
+#notes p.d{color:var(--dim);font-size:11.5px}
+#notes code{background:#0b0f13;padding:1px 4px;border:1px solid var(--line);font-size:11px}
+.badge{margin:0 14px 10px;padding:8px 10px;font-size:11.5px;border-left:2px solid}
+.badge.yes{border-color:var(--good);color:var(--good);background:#0e1a12}
+.badge.no{border-color:#3a4750;color:var(--dim);background:#0e1317}
+.badge.part{border-color:var(--amber);color:var(--amber);background:#1a1710}
+.ctl{padding:4px 14px 10px}
+.ctl label{display:block;font-size:11px;color:var(--dim);margin-bottom:3px}
+.ctl input[type=range]{width:100%;accent-color:var(--acc)}
+.ctl .v{float:right;color:var(--acc);font-variant-numeric:tabular-nums}
+.key{display:flex;gap:9px;flex-wrap:wrap;font-size:10.5px;color:var(--dim);padding:0 14px 12px}
+.key i{display:inline-block;width:9px;height:9px;margin-right:4px;vertical-align:-1px}
+@media (max-width:900px){
+  #app{grid-template-columns:1fr;grid-template-rows:auto 46vh 1fr}
+  #index{max-height:22vh}
+}
+@media (prefers-reduced-motion: reduce){ .item{transition:none} }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="index">
+    <h1>Life simulations</h1>
+    <div class="sub">Every one of these is the real published rule, running live.
+      Click a name. <span class="rep yes"></span>self-replicates ·
+      <span class="rep part"></span>disputed · <span class="rep no"></span>doesn't</div>
+    <div id="list"></div>
+  </div>
+
+  <div id="stage">
+    <canvas id="cv"></canvas>
+    <div id="bar">
+      <button id="play" class="on">pause</button>
+      <button id="step">step</button>
+      <button id="reset">reset</button>
+      <span id="extra" style="display:flex;gap:7px"></span>
+      <span class="gen" id="gen">gen 0</span>
+    </div>
+    <div id="rbar">
+      <span class="rg"><label>speed<b id="vSpeed">30</b></label>
+        <input type="range" id="sSpeed" min="1" max="240" step="1" value="30"></span>
+      <span class="rg"><label>zoom<b id="vZoom">1.0×</b></label>
+        <input type="range" id="sZoom" min="1" max="12" step="0.1" value="1"></span>
+      <span class="rg"><label>trails<b id="vTrail">off</b></label>
+        <input type="range" id="sTrail" min="0" max="0.97" step="0.01" value="0"></span>
+      <button id="bSmooth">pixelated</button>
+      <button id="bHome">reset view</button>
+      <button id="bShot">save png</button>
+      <span class="fps" id="fps"></span>
+    </div>
+  </div>
+
+  <div id="notes">
+    <h2 id="nTitle"></h2>
+    <div class="who" id="nWho"></div>
+    <div id="nRep"></div>
+    <div class="sec">What it does</div>
+    <div id="nBody"></div>
+    <div class="sec" id="cSec" style="display:none">Affect it</div>
+    <div id="nCtl"></div>
+    <div class="sec">Reading the screen</div>
+    <div class="key" id="nKey"></div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   A COLLECTION OF LIFE SIMULATIONS
+   Chronological, starting with the one that made the whole field famous and
+   the machine it was a deliberate simplification of.
+   Every rule here is the published one. Where anything is approximated it
+   says so on screen.
+   ══════════════════════════════════════════════════════════════════════════ */
+const $=id=>document.getElementById(id);
+const cv=$('cv'), cx=cv.getContext('2d');
+
+/* ── generic outer-totalistic life-like engine (B.../S...) ───────────────── */
+function lifeLike(birth,survive,N,density){
+  N=N||160;
+  let g=new Uint8Array(N*N),g2=new Uint8Array(N*N),gen=0;
+  const B=new Uint8Array(9),S=new Uint8Array(9);
+  birth.forEach(n=>B[n]=1); survive.forEach(n=>S[n]=1);
+  function reset(){
+    g.fill(0);gen=0;
+    const d=density===undefined?0.28:density;
+    for(let i=0;i<N*N;i++) g[i]=Math.random()<d?1:0;
+  }
+  function step(){
+    for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+      let n=0;
+      for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+        if(!dx&&!dy)continue;
+        n+=g[((y+dy+N)%N)*N+((x+dx+N)%N)];
+      }
+      const i=y*N+x;
+      g2[i]= g[i] ? (S[n]?1:0) : (B[n]?1:0);
+    }
+    const t=g;g=g2;g2=t;gen++;
+  }
+  const PAL=[[8,11,14],[90,209,196]];
+  function draw(){ blit(g,N,N,PAL); }
+  reset();
+  return {step,draw,reset,get gen(){return gen;},
+          poke:(fx,fy)=>{const x=(fx*N)|0,y=(fy*N)|0;
+            for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++){
+              const xx=(x+dx+N)%N,yy=(y+dy+N)%N;
+              if(Math.random()<0.6)g[yy*N+xx]=1;}}};
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   RENDERER
+   Index grid -> palette -> accumulation buffer -> zoom/pan -> canvas.
+   The accumulation buffer is the whole point: cellular automata are mostly
+   invisible in a still frame, because what matters is what MOVED. Decaying
+   the previous frame instead of clearing it turns a field of dots into
+   something with direction and history.
+   ══════════════════════════════════════════════════════════════════════════ */
+const R={
+  zoom:1, panX:0, panY:0, trail:0, gamma:1, smooth:false,
+  _cv:null, _cx:null, _img:null, _acc:null, _W:0, _H:0, _fit:1, _ox:0, _oy:0,
+  ensure(W,H){
+    if(this._W===W&&this._H===H)return;
+    this._W=W;this._H=H;
+    this._cv=document.createElement('canvas');this._cv.width=W;this._cv.height=H;
+    this._cx=this._cv.getContext('2d');
+    this._img=this._cx.createImageData(W,H);
+    this._acc=new Float32Array(W*H*3);
+  },
+  clearAcc(){ if(this._acc)this._acc.fill(0); },
+  // grid of palette indices -> pixels
+  paint(g,W,H,PAL){
+    this.ensure(W,H);
+    const a=this._img.data, acc=this._acc, d=this.trail, n=W*H;
+    if(d>0){
+      for(let i=0;i<n;i++){
+        const c=PAL[g[i]]||PAL[0], j=i*3;
+        // decay what was there, then take the brighter of decayed vs current
+        const r=acc[j]*d, gg=acc[j+1]*d, b=acc[j+2]*d;
+        acc[j]  = c[0]>r ? c[0] : r;
+        acc[j+1]= c[1]>gg? c[1] : gg;
+        acc[j+2]= c[2]>b ? c[2] : b;
+        a[i*4]=acc[j];a[i*4+1]=acc[j+1];a[i*4+2]=acc[j+2];a[i*4+3]=255;
+      }
+    } else {
+      for(let i=0;i<n;i++){
+        const c=PAL[g[i]]||PAL[0];
+        a[i*4]=c[0];a[i*4+1]=c[1];a[i*4+2]=c[2];a[i*4+3]=255;
+      }
+    }
+    this._cx.putImageData(this._img,0,0);
+    this.present(W,H);
+  },
+  // shared compositing step: letterbox-fit, then zoom about the canvas centre
+  present(W,H){
+    const cw=cv.width,ch=cv.height;
+    cx.fillStyle='#080b0e';cx.fillRect(0,0,cw,ch);
+    const fit=Math.min(cw/W,ch/H)*this.zoom;
+    const ox=(cw-W*fit)/2+this.panX, oy=(ch-H*fit)/2+this.panY;
+    this._fit=fit;this._ox=ox;this._oy=oy;
+    cx.imageSmoothingEnabled=this.smooth;
+    cx.drawImage(this._cv,ox,oy,W*fit,H*fit);
+  },
+  // canvas px -> grid coords, so clicks land where the player thinks they do
+  toGrid(px,py){ return {x:(px-this._ox)/this._fit, y:(py-this._oy)/this._fit}; },
+  get view(){ return {fit:this._fit,ox:this._ox,oy:this._oy}; }
+};
+function blit(g,W,H,PAL){ R.paint(g,W,H,PAL); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   1 · CONWAY'S GAME OF LIFE — the one that started it
+   ══════════════════════════════════════════════════════════════════════════ */
+const LIFE={
+  id:'life', name:"Conway's Game of Life", year:'1970', rep:'yes',
+  who:'John Horton Conway · popularised by Martin Gardner, <i>Scientific American</i>, October 1970',
+  rep_text:'Yes — but it took forty years. Gemini (Andrew Wade, 2010) is the first pattern in Life that builds a copy of itself. Conway proved the rule Turing-complete long before anyone built one.',
+  body:`<p>Two states. One rule. A dead cell with <b>exactly three</b> live neighbours is born;
+    a live cell with <b>two or three</b> survives; everything else dies. Written <code>B3/S23</code>.</p>
+   <p>Conway was not trying to model biology. He was looking for the simplest possible rule
+    that was neither boring nor explosive — one where you genuinely could not tell what would
+    happen without running it. He tuned the thresholds by hand on a Go board with his students
+    for months.</p>
+   <p class="d">Gardner's column offered $50 for a pattern that grew without bound. Bill Gosper's
+    group at MIT won it within weeks with the glider gun.</p>`,
+  key:[['#5ad1c4','alive'],['#080b0e','dead']],
+  ctl:[], make:()=>lifeLike([3],[2,3],160,0.28)
+};
+
+/* ══════════════════════════════════════════════════════════════════════════
+   2 · VON NEUMANN — the thing Life was a simplification OF
+   the complete 29-state rule, verified transition by transition
+   ══════════════════════════════════════════════════════════════════════════ */
+const V=(()=>{
+  const U=0, OTS=(d,e)=>1+d*2+e, STS=(d,e)=>9+d*2+e, CON=(a,b)=>17+a*2+b;
+  const S_=21,S0=22,S1=23,S00=24,S01=25,S10=26,S11=27,S000=28;
+  const isO=s=>s>=1&&s<=8,isT=s=>s>=9&&s<=16,isC=s=>s>=17&&s<=20,isS=s=>s>=21;
+  const oD=s=>(s-1)>>1,oE=s=>(s-1)&1,tD=s=>(s-9)>>1,tE=s=>(s-9)&1,cA=s=>(s-17)>>1,cB=s=>(s-17)&1;
+  const dirOf=s=>isO(s)?oD(s):isT(s)?tD(s):-1;
+  const DX=[1,0,-1,0],DY=[0,-1,0,1];
+  const TREE={};
+  TREE[S_]=[S0,S1];TREE[S0]=[S00,S01];TREE[S1]=[S10,S11];
+  TREE[S00]=[S000,OTS(2,0)];TREE[S01]=[OTS(3,0),STS(0,0)];
+  TREE[S10]=[STS(1,0),STS(2,0)];TREE[S11]=[STS(3,0),CON(0,0)];
+  TREE[S000]=[OTS(0,0),OTS(1,0)];
+  function step(g,g2,W,H){
+    g2.set(g);
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+      const i=y*W+x,s=g[i];
+      let oe=false,se=false,co=false,any=false,all=true;
+      const md=dirOf(s);
+      for(let k=0;k<4;k++){
+        const nx=x+DX[k],ny=y+DY[k];
+        if(nx<0||ny<0||nx>=W||ny>=H)continue;
+        const n=g[ny*W+nx];
+        if(n===U)continue;
+        const pt=(isO(n)||isT(n))&&dirOf(n)===((k+2)&3);
+        if(isO(n)&&pt){any=true; if(oE(n))oe=true; else all=false;}
+        if(isT(n)&&pt&&tE(n))se=true;
+        if(isC(n)&&cA(n)===1&&(isO(s)||isT(s))&&md!==k)co=true;
+      }
+      let ns=s;
+      if(s===U)       ns=(oe||se)?S_:U;
+      else if(isS(s)) ns=TREE[s][(oe||se)?1:0];
+      else if(isO(s)) ns=se?U:OTS(oD(s),(oe||co)?1:0);
+      else if(isT(s)) ns=oe?U:STS(tD(s),(se||co)?1:0);
+      else if(isC(s)) ns=se?U:CON(cB(s),(any&&all)?1:0);
+      g2[i]=ns;
+    }
+    return g2;
+  }
+  return {U,OTS,STS,CON,isO,isT,isC,isS,oD,oE,tD,tE,cA,cB,step};
+})();
+
+const JVN={
+  id:'jvn', name:'Von Neumann · 29 states', year:'c.1952', rep:'yes',
+  who:'John von Neumann, on Stanisław Ulam\'s suggestion to drop the robot for a lattice · published by Arthur Burks, 1966',
+  rep_text:'Yes, and it was designed to. A universal constructor plus a universal computer, reading a tape that describes both. This is the machine Conway\'s rule was a deliberate simplification of.',
+  body:`<p>Twenty-nine states: one blank, eight ordinary transmission, eight <i>special</i>
+    transmission, four confluent, and eight <b>sensitized</b> states that exist only for
+    construction.</p>
+   <p>Shown here: a construction arm. Fire a code at empty space and the blank cell walks the
+    sensitized tree — one level per tick — then crystallises into whatever the code named.
+    <code>10000</code> makes ordinary-east, <code>1111</code> a confluent. You build matter by
+    talking to empty space.</p>
+   <p class="d">The full self-replicator needs a tape 145,315 cells long and 63 billion
+    timesteps. That is why Conway went looking for something smaller.</p>`,
+  key:[['#f2c14e','ordinary transmission'],['#d9534f','special transmission'],
+       ['#9b7ae6','confluent'],['#5ad1c4','sensitized (mid-build)'],['#ffffff','excited']],
+  ctl:[],
+  make:()=>{
+    const W=88,H=44,SY=22;
+    let g=new Uint8Array(W*H),g2=new Uint8Array(W*H),gen=0;
+    let inj={x:2,bits:[],t:0,q:[]};
+    const CODES={'10000':[1,0,0,0,0],'10001':[1,0,0,0,1],'1010':[1,0,1,0],'1111':[1,1,1,1],'1011':[1,0,1,1]};
+    function reset(){ g.fill(0);gen=0;inj={x:2,bits:[],t:0,q:[]};
+      for(let x=2;x<=6;x++)g[SY*W+x]=V.OTS(0,0); }
+    function fire(code){ if(inj.q.length<10) inj.q.push(CODES[code].concat([0,0])); }
+    function step(){
+      if(inj.t>=inj.bits.length&&inj.q.length){inj.bits=inj.q.shift();inj.t=0;}
+      if(inj.t>=inj.bits.length&&!inj.q.length) fire('10000');   // keep it alive
+      const r=V.step(g,g2,W,H); const t=g;g=r;g2=t;
+      if(inj.t<inj.bits.length){g[SY*W+inj.x]=V.OTS(0,inj.bits[inj.t]);inj.t++;}
+      gen++;
+      let full=false; for(let y=0;y<H;y++) if(g[y*W+(W-2)]!==0) full=true;
+      if(full) reset();
+    }
+    const ARR=['▶','▲','◀','▼'];
+    // 29 states collapsed to 8 render categories; the direction survives as a
+    // glyph overlay once you are zoomed in far enough to read one
+    const PAL=[[8,11,14],[242,193,78],[255,255,255],[217,83,79],[255,214,214],
+               [155,122,230],[238,228,255],[90,209,196]];
+    const idx=new Uint8Array(W*H);
+    const cat=s=>!s?0:V.isO(s)?(V.oE(s)?2:1):V.isT(s)?(V.tE(s)?4:3)
+                    :V.isC(s)?(V.cA(s)===1?6:5):7;
+    function draw(){
+      for(let i=0;i<W*H;i++) idx[i]=cat(g[i]);
+      R.paint(idx,W,H,PAL);
+      const {fit,ox,oy}=R.view;
+      if(fit<7)return;                       // glyphs would be unreadable mush
+      cx.textAlign='center';cx.textBaseline='middle';
+      cx.font=Math.floor(fit*0.8)+'px '+getComputedStyle(document.body).fontFamily;
+      for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+        const s=g[y*W+x]; if(!s)continue;
+        const px=ox+x*fit, py=oy+y*fit;
+        if(px<-fit||py<-fit||px>cv.width||py>cv.height)continue;
+        let gl,ex;
+        if(V.isO(s)){gl=ARR[V.oD(s)];ex=!!V.oE(s);}
+        else if(V.isT(s)){gl=ARR[V.tD(s)];ex=!!V.tE(s);}
+        else if(V.isC(s)){gl='✦';ex=V.cA(s)===1;}
+        else{gl='S';ex=true;}
+        cx.fillStyle=ex?'rgba(0,0,0,.75)':'rgba(0,0,0,.5)';
+        cx.fillText(gl,px+fit/2,py+fit/2);
+      }
+    }
+    reset();
+    return {step,draw,reset,fire,get gen(){return gen;},
+      buttons:[['10000 ▶','10000'],['10001 ▲','10001'],['1010 ▼','1010'],['1111 confluent','1111']]};
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════════════════
+   3 · LANGTON'S LOOPS — the real 219-transition table
+   ══════════════════════════════════════════════════════════════════════════ */
+const LOOP={
+  id:'loops', name:"Langton's Loops", year:'1984', rep:'yes',
+  who:'Christopher Langton, <i>Physica D</i> 10:135–144 · rule table via Bachmutsky',
+  rep_text:'Yes, and that is all it does. Langton deliberately threw away universal construction to get here — 86 cells instead of von Neumann\'s ~200,000.',
+  body:`<p>A loop of sheathed data path with a genome circulating inside it: six <i>extend</i>
+    signals and one <i>turn left</i>. At the T-junction each pulse forks — one copy stays in the
+    loop, one drives the construction arm. Four repetitions closes a daughter, which inherits the
+    genome and detaches. About 151 ticks per copy.</p>
+   <p>Watch what happens as the colony fills. Interior loops get boxed in by their own children,
+    stop breeding and die into static coral. <b>Only the rim reproduces.</b></p>
+   <p class="d">Langton's argument was that requiring a replicator to <i>also</i> be a universal
+    constructor — von Neumann's condition — was too strong for studying reproduction. Dropping it
+    bought a factor of two thousand in size.</p>`,
+  key:[['#5ad1c4','sheath (structure)'],['#1a3640','core (track)'],['#fff5b4','extend signal'],['#e0a458','turn signal']],
+  ctl:[],
+  make:()=>{
+const TABLE=`000000 000012 000020 000030 000050 000063 000071 000112 000122 000132
+000212 000220 000230 000262 000272 000320 000525 000622 000722 001022
+001120 002020 002030 002050 002125 002220 002322 005222 012321 012421
+012525 012621 012721 012751 014221 014321 014421 014721 016251 017221
+017255 017521 017621 017721 025271 100011 100061 100077 100111 100121
+100211 100244 100277 100511 101011 101111 101244 101277 102026 102121
+102211 102244 102263 102277 102327 102424 102626 102644 102677 102710
+102727 105427 111121 111221 111244 111251 111261 111277 111522 112121
+112221 112244 112251 112277 112321 112424 112621 112727 113221 122244
+122277 122434 122547 123244 123277 124255 124267 125275 200012 200022
+200042 200071 200122 200152 200212 200222 200232 200242 200250 200262
+200272 200326 200423 200517 200522 200575 200722 201022 201122 201222
+201422 201722 202022 202032 202052 202073 202122 202152 202212 202222
+202272 202321 202422 202452 202520 202552 202622 202722 203122 203216
+203226 203422 204222 205122 205212 205222 205521 205725 206222 206722
+207122 207222 207422 207722 211222 211261 212222 212242 212262 212272
+214222 215222 216222 217222 222272 222442 222462 222762 222772 300013
+300022 300041 300076 300123 300421 300622 301021 301220 302511 401120
+401220 401250 402120 402221 402326 402520 403221 500022 500215 500225
+500232 500272 500520 502022 502122 502152 502220 502244 502722 512122
+512220 512422 512722 600011 600021 602120 612125 612131 612225 700077
+701120 701220 701250 702120 702221 702251 702321 702525 702720`;
+    const LUT=new Uint8Array(1<<15).fill(255);
+    TABLE.trim().split(/\s+/).forEach(r=>{
+      const d=r.split('').map(Number); if(d.length!==6)return;
+      let[C,N,E,So,Wn,Cp]=d;
+      for(let k=0;k<4;k++){
+        const key=(C<<12)|(N<<9)|(E<<6)|(So<<3)|Wn;
+        if(LUT[key]===255)LUT[key]=Cp;
+        [N,E,So,Wn]=[Wn,N,E,So];
+      }
+    });
+    const SEED=[
+      [0,2,2,2,2,2,2,2,2,0,0,0,0,0,0],[2,1,7,0,1,4,0,1,4,2,0,0,0,0,0],
+      [2,0,2,2,2,2,2,2,0,2,0,0,0,0,0],[2,7,2,0,0,0,0,2,1,2,0,0,0,0,0],
+      [2,1,2,0,0,0,0,2,1,2,0,0,0,0,0],[2,0,2,0,0,0,0,2,1,2,0,0,0,0,0],
+      [2,7,2,0,0,0,0,2,1,2,0,0,0,0,0],[2,1,2,2,2,2,2,2,1,2,2,2,2,2,0],
+      [2,0,7,1,0,7,1,0,7,1,1,1,1,1,2],[0,2,2,2,2,2,2,2,2,2,2,2,2,2,0]];
+    const N=170;
+    let g=new Uint8Array(N*N),g2=new Uint8Array(N*N),gen=0;
+    const PAL=[[8,11,14],[26,54,64],[90,209,196],[120,140,150],
+               [224,164,88],[224,120,88],[240,200,90],[255,245,180]];
+    function reset(){ g.fill(0);gen=0;
+      const o=(N>>1)-24;
+      for(let y=0;y<SEED.length;y++)for(let x=0;x<SEED[y].length;x++)g[(o+y)*N+(o+x)]=SEED[y][x]; }
+    function step(){
+      g2.set(g);
+      for(let y=1;y<N-1;y++)for(let x=1;x<N-1;x++){
+        const i=y*N+x,C=g[i],Nn=g[i-N],E=g[i+1],So=g[i+N],Wn=g[i-1];
+        if(!(C|Nn|E|So|Wn))continue;
+        const r=LUT[(C<<12)|(Nn<<9)|(E<<6)|(So<<3)|Wn];
+        g2[i]=(r===255)?C:r;
+      }
+      const t=g;g=g2;g2=t;gen++;
+    }
+    function plant(fx,fy){
+      const SH=SEED.length,SW=SEED[0].length;
+      let x=Math.max(3,Math.min(N-SW-4,(fx*N|0)-(SW>>1)));
+      let y=Math.max(3,Math.min(N-SH-4,(fy*N|0)-(SH>>1)));
+      for(let dy=-2;dy<SH+2;dy++)for(let dx=-2;dx<SW+2;dx++){
+        const xx=x+dx,yy=y+dy; if(xx<0||yy<0||xx>=N||yy>=N)continue;
+        if(g[yy*N+xx]!==0)return false;
+      }
+      for(let sy=0;sy<SH;sy++)for(let sx=0;sx<SW;sx++)g[(y+sy)*N+(x+sx)]=SEED[sy][sx];
+      return true;
+    }
+    reset();
+    return {step,draw:()=>blit(g,N,N,PAL),reset,poke:plant,get gen(){return gen;}};
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════════════════
+   4 · LANGTON'S ANT
+   ══════════════════════════════════════════════════════════════════════════ */
+const ANT={
+  id:'ant', name:"Langton's Ant", year:'1986', rep:'no',
+  who:'Christopher Langton',
+  rep_text:'No. One agent, two rules, no reproduction of any kind — it is here because of what it proves about prediction.',
+  body:`<p>An ant on a grid. On a white square: turn <b>right</b>, flip the square, step forward.
+    On black: turn <b>left</b>, flip, step forward. That is the entire rule.</p>
+   <p>For about ten thousand steps it produces apparent chaos. Then, with no warning and for no
+    reason anyone can state in advance, it builds a perfectly regular diagonal <b>highway</b> and
+    runs off forever.</p>
+   <p class="d">Nobody has proved it must. The highway is observed, not derived — which is the
+    same epistemic situation Conway was in, and the reason these systems have to be run rather
+    than solved.</p>`,
+  key:[['#5ad1c4','flipped'],['#f2c14e','the ant']],
+  ctl:[],
+  make:()=>{
+    const N=220;
+    let g=new Uint8Array(N*N),gen=0,ax=N>>1,ay=N>>1,dir=0;
+    const DX=[0,1,0,-1],DY=[-1,0,1,0];
+    function reset(){g.fill(0);gen=0;ax=ay=N>>1;dir=0;}
+    function step(){
+      for(let k=0;k<40;k++){                       // batch: one ant is slow to watch
+        const i=ay*N+ax;
+        if(g[i]){dir=(dir+3)&3;g[i]=0;} else {dir=(dir+1)&3;g[i]=1;}
+        ax=(ax+DX[dir]+N)%N; ay=(ay+DY[dir]+N)%N; gen++;
+      }
+    }
+    const PAL=[[8,11,14],[90,209,196]];
+    function draw(){
+      R.paint(g,N,N,PAL);
+      const {fit,ox,oy}=R.view;
+      cx.fillStyle='#f2c14e';
+      cx.fillRect(ox+ax*fit-1,oy+ay*fit-1,fit+2,fit+2);
+    }
+    reset();
+    return {step,draw,reset,get gen(){return gen;}};
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════════════════
+   5 · BRIAN'S BRAIN
+   ══════════════════════════════════════════════════════════════════════════ */
+const BRAIN={
+  id:'brain', name:"Brian's Brain", year:'1980s', rep:'no',
+  who:'Brian Silverman',
+  rep_text:'No. It is a medium for travelling waves, not for organisms — but almost everything in it moves, which Life mostly does not.',
+  body:`<p>Three states. A dead cell with <b>exactly two</b> firing neighbours fires. A firing cell
+    always becomes <i>refractory</i>. A refractory cell always dies. Nothing ever stays still.</p>
+   <p>The refractory state is the whole trick: it stops a wave from immediately re-igniting the
+    cells behind it, so everything propagates outward and nothing sits. The result is a sky full
+    of gliders.</p>`,
+  key:[['#ffffff','firing'],['#2b6f77','refractory'],['#080b0e','dead']],
+  ctl:[],
+  make:()=>{
+    const N=170;
+    let g=new Uint8Array(N*N),g2=new Uint8Array(N*N),gen=0;
+    function reset(){g.fill(0);gen=0;for(let i=0;i<N*N;i++)g[i]=Math.random()<0.12?1:0;}
+    function step(){
+      for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+        const i=y*N+x,s=g[i];
+        if(s===1){g2[i]=2;continue;}
+        if(s===2){g2[i]=0;continue;}
+        let n=0;
+        for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+          if(!dx&&!dy)continue;
+          if(g[((y+dy+N)%N)*N+((x+dx+N)%N)]===1)n++;
+        }
+        g2[i]=(n===2)?1:0;
+      }
+      const t=g;g=g2;g2=t;gen++;
+    }
+    const PAL=[[8,11,14],[255,255,255],[43,111,119]];
+    reset();
+    return {step,draw:()=>blit(g,N,N,PAL),reset,get gen(){return gen;},
+      poke:(fx,fy)=>{const x=(fx*N)|0,y=(fy*N)|0;
+        for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++)
+          if(Math.random()<0.4)g[((y+dy+N)%N)*N+((x+dx+N)%N)]=1;}};
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════════════════
+   6 · HIGHLIFE — one digit from Life, and it replicates
+   ══════════════════════════════════════════════════════════════════════════ */
+const HIGH={
+  id:'highlife', name:'HighLife', year:'1994', rep:'yes',
+  who:'Nathan Thompson',
+  rep_text:'Yes — trivially and for free. A 12-cell pattern copies itself every 12 generations. It is also completely stupid: it can copy, and it can do nothing else.',
+  body:`<p><code>B36/S23</code> — Conway's rule with one extra birth condition: six neighbours also
+    give birth. One digit.</p>
+   <p>That digit buys a natural <b>replicator</b>: a small pattern that produces copies of itself
+    without anyone designing it to. Von Neumann needed 200,000 cells for replication. Here it falls
+    out of a typo.</p>
+   <p class="d">Which is exactly why replication alone was never the interesting property.
+    The question von Neumann cared about was replication <i>plus</i> the ability to build
+    anything else — and HighLife has none of that.</p>`,
+  key:[['#f2c14e','alive'],['#080b0e','dead']],
+  ctl:[],
+  make:()=>{
+    const s=lifeLike([3,6],[2,3],160,0.28);
+    const N=160;
+    // seed the known 12-cell replicator on a clean field as well as soup
+    const old=s.reset;
+    s.reset=()=>{old();};
+    return s;
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════════════════
+   7 · SEEDS — the explosive end of the same family
+   ══════════════════════════════════════════════════════════════════════════ */
+const SEEDS={
+  id:'seeds', name:'Seeds', year:'—', rep:'no',
+  who:'rule catalogued by Mirek Wójtowicz and others',
+  rep_text:'No. Nothing survives even one generation, so nothing can persist long enough to copy itself.',
+  body:`<p><code>B2/S</code>. Born with exactly two neighbours; <b>never</b> survives. Every single
+    cell on screen is one generation old.</p>
+   <p>It is here as the other side of the boundary. Life sits in Wolfram's class IV — structures
+    stable enough to persist, unstable enough to do something. Seeds is class III: pure expansion,
+    no memory, nothing to build with.</p>`,
+  key:[['#d9534f','alive (for one tick)'],['#080b0e','dead']],
+  ctl:[],
+  make:()=>{
+    const s=lifeLike([2],[],150,0.004);
+    return s;
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════════════════
+   8 · WIREWORLD
+   ══════════════════════════════════════════════════════════════════════════ */
+const WIRE={
+  id:'wireworld', name:'Wireworld', year:'1987', rep:'no',
+  who:'Brian Silverman',
+  rep_text:'No — and it does not try. It is a medium for building computers by hand; a full CPU was constructed in it in 2002.',
+  body:`<p>Four states. Electron head → tail. Tail → conductor. Conductor → head if it has
+    <b>exactly one or two</b> neighbouring heads. That last clause is what stops a signal
+    flooding backwards down a wire.</p>
+   <p>Shown: two rings of different circumference — clocks of different periods — feeding a
+    shared line. Where a ring touches a tap the electron <b>fans out</b>: one copy carries on
+    round, one heads off down the wire. The merge is an OR gate you get for free.</p>`,
+  key:[['#f2c14e','conductor'],['#5ad1c4','electron head'],['#2b6f77','electron tail']],
+  ctl:[],
+  make:()=>{
+    const W=160,H=90;
+    let g=new Uint8Array(W*H),g2=new Uint8Array(W*H),gen=0;
+    const put=(x,y,v)=>{if(x>=0&&y>=0&&x<W&&y<H)g[y*W+x]=v;};
+    function ring(x0,y0,w,h){
+      const p=[];
+      for(let x=x0;x<x0+w;x++)p.push([x,y0]);
+      for(let y=y0+1;y<y0+h;y++)p.push([x0+w-1,y]);
+      for(let x=x0+w-2;x>=x0;x--)p.push([x,y0+h-1]);
+      for(let y=y0+h-2;y>y0;y--)p.push([x0,y]);
+      p.forEach(([x,y])=>put(x,y,3)); return p;
+    }
+    function reset(){
+      g.fill(0);gen=0;
+      const a=ring(12,14,22,12), b=ring(12,44,34,16);
+      for(let x=34;x<=96;x++)put(x,20,3);
+      for(let x=46;x<=96;x++)put(x,52,3);
+      for(let y=20;y<=52;y++)put(96,y,3);
+      for(let x=96;x<=150;x++)put(x,36,3);
+      const la=p=>{put(p[3][0],p[3][1],1);put(p[2][0],p[2][1],2);};
+      la(a);la(b);
+    }
+    function step(){
+      g2.set(g);
+      for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+        const i=y*W+x,s=g[i];
+        if(!s)continue;
+        if(s===1)g2[i]=2;
+        else if(s===2)g2[i]=3;
+        else{
+          let n=0;
+          for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+            if(!dx&&!dy)continue;
+            const xx=x+dx,yy=y+dy;
+            if(xx<0||yy<0||xx>=W||yy>=H)continue;
+            if(g[yy*W+xx]===1)n++;
+          }
+          g2[i]=(n===1||n===2)?1:3;
+        }
+      }
+      const t=g;g=g2;g2=t;gen++;
+    }
+    const PAL=[[8,11,14],[90,209,196],[43,111,119],[242,193,78]];
+    reset();
+    return {step,draw:()=>blit(g,W,H,PAL),reset,get gen(){return gen;}};
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════════════════
+   9 · NOWAK & MAY — game theory as a cellular automaton
+   ══════════════════════════════════════════════════════════════════════════ */
+const PD={
+  id:'pd', name:"Spatial prisoner's dilemma", year:'1992', rep:'no',
+  who:'Martin Nowak & Robert May, <i>Nature</i> 359:826–829',
+  rep_text:'No. Strategies spread by imitation, not reproduction — but it produces gliders and dynamic fractals anyway, from a purely game-theoretic rule.',
+  body:`<p>Every cell is an unconditional <b>cooperator</b> or an unconditional <b>defector</b>.
+    Each plays the prisoner's dilemma against its eight neighbours, sums the payoff, then copies
+    whichever nearby cell scored best. Deterministic and synchronous — which makes it a cellular
+    automaton.</p>
+   <p>No memory. No reciprocity. No tit-for-tat. Cooperation survives here on <b>geometry alone</b>:
+    cooperators clump, and clumps feed themselves.</p>
+   <p>Turn <b>b</b> below 1.1 and everyone cooperates forever — a frozen utopia where nothing
+    happens. Push it past 2.0 and defectors take everything and it freezes again. Everything
+    interesting is in between.</p>`,
+  key:[['#26568c','cooperating'],['#7ad88a','just turned cooperator'],
+       ['#c4403a','defecting'],['#f0ce5a','just defected']],
+  ctl:[{k:'b',label:'b · temptation to defect',min:1,max:2.2,step:0.01,def:1.85}],
+  make:()=>{
+    const N=120,NN=N*N;
+    let s=new Uint8Array(NN),s2=new Uint8Array(NN),prev=new Uint8Array(NN),sc=new Float32Array(NN);
+    let gen=0,b=1.85;
+    function reset(){ s.fill(0);prev.fill(0);gen=0;
+      for(let i=0;i<NN;i++) if(Math.random()<0.08) s[i]=1; }
+    function step(){
+      for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+        let c=0;
+        for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)
+          if(s[((y+dy+N)%N)*N+((x+dx+N)%N)]===0)c++;
+        sc[y*N+x]= s[y*N+x]===0 ? c : c*b;
+      }
+      for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+        const i=y*N+x; let best=sc[i],bs=s[i];
+        for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+          if(!dx&&!dy)continue;
+          const j=((y+dy+N)%N)*N+((x+dx+N)%N);
+          if(sc[j]>best){best=sc[j];bs=s[j];}
+        }
+        s2[i]=bs;
+      }
+      prev.set(s); const t=s;s=s2;s2=t; gen++;
+    }
+    const P={cc:[38,86,140],dc:[122,216,138],dd:[196,64,58],cd:[240,206,90]};
+    function draw(){
+      const tmp=new Uint8Array(NN);
+      // build a 4-way index for the shared blitter
+      for(let i=0;i<NN;i++) tmp[i]= s[i]===0 ? (prev[i]===0?0:1) : (prev[i]===1?2:3);
+      blit(tmp,N,N,[P.cc,P.dc,P.dd,P.cd]);
+    }
+    reset();
+    return {step,draw,reset,get gen(){return gen;},
+      set b(v){b=v;}, get b(){return b;}};
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════════════════
+   REGISTRY
+   ══════════════════════════════════════════════════════════════════════════ */
+const ERAS=[
+  {name:'Where it started', items:[LIFE,JVN]},
+  {name:'The lattice lineage', items:[LOOP,HIGH,WIRE,BRAIN,SEEDS,ANT]},
+  {name:'Other games entirely', items:[PD]},
+];
+const ALL=ERAS.flatMap(e=>e.items);
+
+/* ── index ── */
+function buildIndex(){
+  const w=$('list'); w.innerHTML='';
+  ERAS.forEach(era=>{
+    const h=document.createElement('div');h.className='era';h.textContent=era.name;w.appendChild(h);
+    era.items.forEach(sim=>{
+      const d=document.createElement('div');
+      d.className='item';d.dataset.id=sim.id;
+      d.innerHTML=`<div class="n"><span class="rep ${sim.rep}"></span>${sim.name}</div>`+
+                  `<div class="y">${sim.year}</div>`;
+      d.onclick=()=>select(sim.id);
+      w.appendChild(d);
+    });
+  });
+}
+
+/* ── selection ── */
+let cur=null,inst=null,running=true;
+function select(id){
+  const sim=ALL.find(s=>s.id===id); if(!sim)return;
+  cur=sim; inst=sim.make();
+  document.querySelectorAll('.item').forEach(e=>e.classList.toggle('on',e.dataset.id===id));
+  $('nTitle').textContent=sim.name+'  ·  '+sim.year;
+  $('nWho').innerHTML=sim.who;
+  const rc={yes:'Self-replicates',part:'Disputed',no:'Does not self-replicate'}[sim.rep];
+  $('nRep').innerHTML=`<div class="badge ${sim.rep}"><b>${rc}.</b> ${sim.rep_text}</div>`;
+  $('nBody').innerHTML=sim.body;
+  $('nKey').innerHTML=sim.key.map(([c,l])=>`<span><i style="background:${c}"></i>${l}</span>`).join('');
+  // sliders
+  const cw=$('nCtl'); cw.innerHTML='';
+  $('cSec').style.display=(sim.ctl&&sim.ctl.length)?'':'none';
+  (sim.ctl||[]).forEach(c=>{
+    const d=document.createElement('div');d.className='ctl';
+    d.innerHTML=`<label>${c.label}<span class="v" id="v_${c.k}">${c.def}</span></label>`+
+                `<input type="range" min="${c.min}" max="${c.max}" step="${c.step}" value="${c.def}">`;
+    d.querySelector('input').oninput=e=>{
+      inst[c.k]=+e.target.value; $('v_'+c.k).textContent=(+e.target.value).toFixed(2);
+    };
+    cw.appendChild(d);
+    inst[c.k]=c.def;
+  });
+  // per-sim buttons
+  const ex=$('extra'); ex.innerHTML='';
+  (inst.buttons||[]).forEach(([label,arg])=>{
+    const b=document.createElement('button');b.textContent=label;
+    b.onclick=()=>inst.fire(arg); ex.appendChild(b);
+  });
+  if(inst.poke){
+    const t=document.createElement('span');
+    t.style.cssText='font-size:11px;color:var(--dim)';
+    t.textContent='click the canvas to seed';
+    ex.appendChild(t);
+  }
+  location.hash=id;
+}
+
+/* ── controls ── */
+$('play').onclick=()=>{running=!running;$('play').textContent=running?'pause':'play';
+                       $('play').classList.toggle('on',running);};
+$('step').onclick=()=>{running=false;$('play').textContent='play';
+                       $('play').classList.remove('on');inst&&inst.step();};
+$('reset').onclick=()=>inst&&inst.reset();
+/* ── render controls ── */
+let stepsPerSec=30;
+$('sSpeed').oninput=e=>{stepsPerSec=+e.target.value;$('vSpeed').textContent=stepsPerSec;};
+$('sZoom').oninput=e=>{R.zoom=+e.target.value;$('vZoom').textContent=R.zoom.toFixed(1)+'×';};
+$('sTrail').oninput=e=>{
+  R.trail=+e.target.value;
+  $('vTrail').textContent=R.trail?R.trail.toFixed(2):'off';
+  if(!R.trail)R.clearAcc();
+};
+$('bSmooth').onclick=()=>{R.smooth=!R.smooth;
+  $('bSmooth').textContent=R.smooth?'smoothed':'pixelated';
+  $('bSmooth').classList.toggle('on',R.smooth);};
+$('bHome').onclick=()=>{R.zoom=1;R.panX=R.panY=0;$('sZoom').value=1;$('vZoom').textContent='1.0×';};
+$('bShot').onclick=()=>{
+  const a=document.createElement('a');
+  a.download=(cur?cur.id:'sim')+'-gen'+(inst?inst.gen:0)+'.png';
+  a.href=cv.toDataURL('image/png');a.click();
+};
+
+/* ── zoom about the cursor, drag to pan ── */
+cv.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const r=cv.getBoundingClientRect();
+  const mx=(e.clientX-r.left)*(cv.width/r.width), my=(e.clientY-r.top)*(cv.height/r.height);
+  const before=R.toGrid(mx,my);
+  R.zoom=Math.max(1,Math.min(24,R.zoom*(e.deltaY<0?1.12:1/1.12)));
+  R.present(R._W,R._H);                       // recompute fit/offset at new zoom
+  const after=R.toGrid(mx,my);
+  R.panX+=(after.x-before.x)*R._fit;
+  R.panY+=(after.y-before.y)*R._fit;
+  $('sZoom').value=Math.min(12,R.zoom);$('vZoom').textContent=R.zoom.toFixed(1)+'×';
+},{passive:false});
+
+let dragging=false,moved=0,lx=0,ly=0;
+cv.addEventListener('pointerdown',e=>{dragging=true;moved=0;lx=e.clientX;ly=e.clientY;
+  cv.setPointerCapture(e.pointerId);cv.classList.add('drag');});
+cv.addEventListener('pointermove',e=>{
+  if(!dragging)return;
+  const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;
+  moved+=Math.abs(dx)+Math.abs(dy);
+  R.panX+=dx*(cv.width/cv.getBoundingClientRect().width);
+  R.panY+=dy*(cv.height/cv.getBoundingClientRect().height);
+});
+cv.addEventListener('pointerup',e=>{
+  dragging=false;cv.classList.remove('drag');
+  if(moved>4||!inst||!inst.poke)return;        // a drag is not a click
+  const r=cv.getBoundingClientRect();
+  const p=R.toGrid((e.clientX-r.left)*(cv.width/r.width),(e.clientY-r.top)*(cv.height/r.height));
+  inst.poke(p.x/R._W,p.y/R._H);
+});
+
+/* ── loop ── */
+let acc=0,last=performance.now(),fpsT=0,fpsN=0;
+function frame(now){
+  const dt=Math.min(.25,(now-last)/1000);last=now;
+  // device-pixel-ratio aware: on a hi-dpi screen a CSS-sized canvas is a blurry
+  // upscale, which is fatal when the thing you are looking at is single pixels
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  const w=Math.round(cv.clientWidth*dpr), h=Math.round(cv.clientHeight*dpr);
+  if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}
+  if(inst){
+    if(running){acc+=dt; const budget=1/stepsPerSec;
+      let guard=0; while(acc>budget&&guard<600){inst.step();acc-=budget;guard++;} }
+    inst.draw();
+    $('gen').textContent='gen '+inst.gen.toLocaleString();
+  }
+  fpsN++;fpsT+=dt;
+  if(fpsT>0.5){$('fps').textContent=Math.round(fpsN/fpsT)+' fps · '+
+    (R._W?R._W+'×'+R._H:'')+' · '+cv.width+'×'+cv.height;fpsN=0;fpsT=0;}
+  requestAnimationFrame(frame);
+}
+
+buildIndex();
+select((location.hash||'').replace('#','')||'life');
+requestAnimationFrame(frame);
+window.__sims={ALL,select,get inst(){return inst;},set running(v){running=v;}};
+</script>
+</body>
+</html>

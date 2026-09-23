@@ -1,0 +1,37 @@
+One workbench. One active simulation at a time.
+
+Free software under GNU GPL version 3 or any later version.
+Copyright 2026 Life-sim Workbench contributors. No warranty is provided,
+including merchantability or fitness for a particular purpose.
+You may copy, modify and redistribute the workbench under the included LICENSE.
+Third-party components retain their own terms and credits.
+Tools > License & source opens the folder containing the license notices.
+The source folder contains the matching workbench source and revision.
+When C++ build tools are installed, toolchain/sources contains their matching
+source packages, including upstream sources, patches and build recipes.
+
+Choose any installed template from the library. Use Create simulation to start
+your own, or Open simulation to add a .benchsim project. Empty-bench installs
+include the same workspace and can open these files later.
+
+Create simulation offers a rule-based simulation with no coding, or a C++
+simulation. Rule lab supports B/S, Hensel, four/six-neighbour rules and
+Generations with up to 256 states. Paste a rule, then Apply & restart.
+
+Save as stores a named simulation in your library. It saves the custom source,
+its compiled DLL when available, settings, the applied rulestring and a custom
+movement-lab body. Apply rulestring edits before saving them.
+The last workspace is also saved when switching simulations or closing normally.
+Reopening starts a new run from the saved setup. Timeline history and trained
+brains are not universal checkpoints.
+
+Custom simulations and saved setups are kept in:
+%LOCALAPPDATA%\LifeSimWorkbench
+
+Updating or uninstalling the workbench leaves that folder alone. To share a
+custom C++ simulation, copy its .benchsim file and the matching .assets-* folder
+together. Save files reference their source and DLL using relative paths.
+
+The optional C++ build tools allow custom C++ source to build without a separate
+compiler installation. If you omit the tools, you can still create rule-based
+simulations, use templates and open compatible prebuilt simulations.

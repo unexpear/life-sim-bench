@@ -1,0 +1,233 @@
+{
+  "schema": 1,
+  "checked": "2026-09-23",
+  "signatureKeys": "Installed MSYS2 public keyring; isolated verification keyring",
+  "packages": [
+    {
+      "name": "mingw-w64-ucrt-x86_64-gcc",
+      "version": "16.2.0-3",
+      "sourceBase": "mingw-w64-gcc",
+      "licenseMetadata": "spdx:GPL-3.0-or-later",
+      "sourceArchive": "mingw-w64-gcc-16.2.0-3.src.tar.zst"
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-gcc-libs",
+      "version": "16.2.0-3",
+      "sourceBase": "mingw-w64-gcc",
+      "licenseMetadata": "spdx:GPL-3.0-or-later WITH GCC-exception-3.1 AND LGPL-2.1-or-later",
+      "sourceArchive": "mingw-w64-gcc-16.2.0-3.src.tar.zst"
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-binutils",
+      "version": "2.47-3",
+      "sourceBase": "mingw-w64-binutils",
+      "licenseMetadata": "spdx:GPL-3.0-or-later AND GPL-2.0-or-later AND LGPL-3.0-or-later AND LGPL-2.0-or-later",
+      "sourceArchive": "mingw-w64-binutils-2.47-3.src.tar.zst"
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-crt",
+      "version": "14.0.0.r302.gd7f3c5201-1",
+      "sourceBase": "mingw-w64-crt",
+      "licenseMetadata": "spdx:ZPL-2.1",
+      "sourceArchive": "mingw-w64-crt-14.0.0.r302.gd7f3c5201-1.src.tar.zst"
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-headers",
+      "version": "14.0.0.r302.gd7f3c5201-1",
+      "sourceBase": "mingw-w64-headers",
+      "licenseMetadata": "spdx:ZPL-2.1 AND LGPL-2.1-or-later",
+      "sourceArchive": "mingw-w64-headers-14.0.0.r302.gd7f3c5201-1.src.tar.zst"
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-winpthreads",
+      "version": "14.0.0.r302.gd7f3c5201-1",
+      "sourceBase": "mingw-w64-winpthreads",
+      "licenseMetadata": "spdx:MIT AND BSD-3-Clause-Clear",
+      "sourceArchive": "mingw-w64-winpthreads-14.0.0.r302.gd7f3c5201-1.src.tar.zst"
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-libwinpthread",
+      "version": "14.0.0.r302.gd7f3c5201-1",
+      "sourceBase": "mingw-w64-winpthreads",
+      "licenseMetadata": "spdx:MIT AND BSD-3-Clause-Clear",
+      "sourceArchive": "mingw-w64-winpthreads-14.0.0.r302.gd7f3c5201-1.src.tar.zst"
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-gmp",
+      "version": "6.3.0-2",
+      "sourceBase": "mingw-w64-gmp",
+      "licenseMetadata": "LGPL3 OR GPL",
+      "sourceArchive": "mingw-w64-gmp-6.3.0-2.src.tar.zst"
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-mpfr",
+      "version": "4.2.2-3",
+      "sourceBase": "mingw-w64-mpfr",
+      "licenseMetadata": "spdx:LGPL-3.0-or-later",
+      "sourceArchive": "mingw-w64-mpfr-4.2.2-3.src.tar.zst"
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-mpc",
+      "version": "1.4.1-1",
+      "sourceBase": "mingw-w64-mpc",
+      "licenseMetadata": "spdx:LGPL-3.0-or-later",
+      "sourceArchive": "mingw-w64-mpc-1.4.1-1.src.tar.zst"
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-isl",
+      "version": "0.28-1",
+      "sourceBase": "mingw-w64-isl",
+      "licenseMetadata": "spdx:MIT",
+      "sourceArchive": "mingw-w64-isl-0.28-1.src.tar.zst"
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-zstd",
+      "version": "1.5.7-2",
+      "sourceBase": "mingw-w64-zstd",
+      "licenseMetadata": "spdx:BSD-3-Clause OR GPL-2.0-or-later",
+      "sourceArchive": "mingw-w64-zstd-1.5.7-2.src.tar.zst"
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-libiconv",
+      "version": "1.19-1",
+      "sourceBase": "mingw-w64-libiconv",
+      "licenseMetadata": "spdx:LGPL-2.1-or-later OR documentation:spdx:GPL-3.0-or-later",
+      "sourceArchive": "mingw-w64-libiconv-1.19-1.src.tar.zst"
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-gettext-runtime",
+      "version": "1.0-1",
+      "sourceBase": "mingw-w64-gettext",
+      "licenseMetadata": "spdx:GPL-3.0-or-later AND LGPL-2.1-or-later",
+      "sourceArchive": "mingw-w64-gettext-1.0-1.src.tar.zst"
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-zlib",
+      "version": "1.3.2-2",
+      "sourceBase": "mingw-w64-zlib",
+      "licenseMetadata": "spdx:Zlib",
+      "sourceArchive": "mingw-w64-zlib-1.3.2-2.src.tar.zst"
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-windows-default-manifest",
+      "version": "20260815-1",
+      "sourceBase": "mingw-w64-windows-default-manifest",
+      "licenseMetadata": "custom:Public Domain",
+      "sourceArchive": "mingw-w64-windows-default-manifest-20260815-1.src.tar.zst"
+    },
+    {
+      "name": "mingw-w64-ucrt-x86_64-tzdata",
+      "version": "2026c-1",
+      "sourceBase": "mingw-w64-tzdata",
+      "licenseMetadata": "custom: public domain",
+      "sourceArchive": "mingw-w64-tzdata-2026c-1.src.tar.zst"
+    }
+  ],
+  "sources": [
+    {
+      "file": "mingw-w64-binutils-2.47-3.src.tar.zst",
+      "url": "https://repo.msys2.org/mingw/sources/mingw-w64-binutils-2.47-3.src.tar.zst",
+      "sha256": "7f30f4c1624bb9a53f72b2b325d7560a730a7157faafbfc2242ddbaa4833118a",
+      "bytes": 39009763,
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    },
+    {
+      "file": "mingw-w64-crt-14.0.0.r302.gd7f3c5201-1.src.tar.zst",
+      "url": "https://repo.msys2.org/mingw/sources/mingw-w64-crt-14.0.0.r302.gd7f3c5201-1.src.tar.zst",
+      "sha256": "acd30b60f92df870d649c79eafab65fd70c5501c88d1cf760dc57c64270946b4",
+      "bytes": 52635345,
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    },
+    {
+      "file": "mingw-w64-gcc-16.2.0-3.src.tar.zst",
+      "url": "https://repo.msys2.org/mingw/sources/mingw-w64-gcc-16.2.0-3.src.tar.zst",
+      "sha256": "eb3479a8b0b23810fbbbc25ef76879e867e88d09960a40145d73f5505fda4da0",
+      "bytes": 107228430,
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    },
+    {
+      "file": "mingw-w64-gettext-1.0-1.src.tar.zst",
+      "url": "https://repo.msys2.org/mingw/sources/mingw-w64-gettext-1.0-1.src.tar.zst",
+      "sha256": "cca0d0c8f60353faccc5ad40405240014e4a7ccc8b1c6ca9f4626aef3097d26e",
+      "bytes": 10267655,
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    },
+    {
+      "file": "mingw-w64-gmp-6.3.0-2.src.tar.zst",
+      "url": "https://repo.msys2.org/mingw/sources/mingw-w64-gmp-6.3.0-2.src.tar.zst",
+      "sha256": "f288f944fd9609db220bcf6a8dd0703a5674eeb906ef35eb8485bb8192135994",
+      "bytes": 2097066,
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    },
+    {
+      "file": "mingw-w64-headers-14.0.0.r302.gd7f3c5201-1.src.tar.zst",
+      "url": "https://repo.msys2.org/mingw/sources/mingw-w64-headers-14.0.0.r302.gd7f3c5201-1.src.tar.zst",
+      "sha256": "76eec09bd2c22ed37ab33062ff9216f7d9b40f0a75151042a6695c282f73a4d2",
+      "bytes": 52628193,
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    },
+    {
+      "file": "mingw-w64-isl-0.28-1.src.tar.zst",
+      "url": "https://repo.msys2.org/mingw/sources/mingw-w64-isl-0.28-1.src.tar.zst",
+      "sha256": "889246cdeb8b3f731010b2c63edc16ee75a7a0e7336d267fa071710d11751b05",
+      "bytes": 1944224,
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    },
+    {
+      "file": "mingw-w64-libiconv-1.19-1.src.tar.zst",
+      "url": "https://repo.msys2.org/mingw/sources/mingw-w64-libiconv-1.19-1.src.tar.zst",
+      "sha256": "74428280c17094da5b702c29b2e1a0abae59556ea5dfdd65705cc8ccc1e000fb",
+      "bytes": 5131029,
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    },
+    {
+      "file": "mingw-w64-mpc-1.4.1-1.src.tar.zst",
+      "url": "https://repo.msys2.org/mingw/sources/mingw-w64-mpc-1.4.1-1.src.tar.zst",
+      "sha256": "655ed4227108f08f129a0900850ab16330c2e2ad45105900d4327f036ace3a5f",
+      "bytes": 533531,
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    },
+    {
+      "file": "mingw-w64-mpfr-4.2.2-3.src.tar.zst",
+      "url": "https://repo.msys2.org/mingw/sources/mingw-w64-mpfr-4.2.2-3.src.tar.zst",
+      "sha256": "c8c9b1e091b744165b150d59b7599bcf014fe9c3ae21df98fd3807f05f702c60",
+      "bytes": 1507413,
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    },
+    {
+      "file": "mingw-w64-tzdata-2026c-1.src.tar.zst",
+      "url": "https://repo.msys2.org/mingw/sources/mingw-w64-tzdata-2026c-1.src.tar.zst",
+      "sha256": "e4c7dac9237d9c72a61e4c35de2a00a78921bb0ca9d371b2df44b4d02972a07e",
+      "bytes": 683346,
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    },
+    {
+      "file": "mingw-w64-windows-default-manifest-20260815-1.src.tar.zst",
+      "url": "https://repo.msys2.org/mingw/sources/mingw-w64-windows-default-manifest-20260815-1.src.tar.zst",
+      "sha256": "bed6d206e13c6ef0149f59fb7ed0a20c8665b8f39297247aded467860830f954",
+      "bytes": 1973,
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    },
+    {
+      "file": "mingw-w64-winpthreads-14.0.0.r302.gd7f3c5201-1.src.tar.zst",
+      "url": "https://repo.msys2.org/mingw/sources/mingw-w64-winpthreads-14.0.0.r302.gd7f3c5201-1.src.tar.zst",
+      "sha256": "f3375ec5a49a45502840dd50ebf8f2c5a86efdd649acebb920134b9b02e3af9d",
+      "bytes": 53236718,
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    },
+    {
+      "file": "mingw-w64-zlib-1.3.2-2.src.tar.zst",
+      "url": "https://repo.msys2.org/mingw/sources/mingw-w64-zlib-1.3.2-2.src.tar.zst",
+      "sha256": "eef69dea52357e01b272d6fd6dc4d7c0773f71260cb7bcde6047c8c383518db3",
+      "bytes": 1326375,
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    },
+    {
+      "file": "mingw-w64-zstd-1.5.7-2.src.tar.zst",
+      "url": "https://repo.msys2.org/mingw/sources/mingw-w64-zstd-1.5.7-2.src.tar.zst",
+      "sha256": "306797282df799e95d550e6d0bb4b0a7b848027b8e13893a24236e060837c217",
+      "bytes": 2402010,
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    }
+  ]
+}
