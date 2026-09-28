@@ -42,6 +42,9 @@
 !/native/third_party/
 !/native/third_party/**
 !/native/PACKS.md
+!/native/BRIAN2-WINDOWS.md
+!/native/scripts/
+!/native/scripts/**
 *.exe
 *.dll
 *.o
@@ -55,3 +58,8 @@
 *.key
 **/node_modules/
 **/__pycache__/
+
+# Local optional research runtimes/data (never installer)
+native/third_party/jolt/JoltPhysics/
+native/third_party/jolt/jolt-v5.6.0.zip
+native/third_party/jolt/FETCHED.txt
