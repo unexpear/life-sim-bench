@@ -172,11 +172,11 @@ inline constexpr int kFallDespawn = 600;
 
 // FlowingFluid::canHoldFluid is, once the waterloggable special cases are
 // stripped, "!state.blocksMotion()". This world has no waterlogging and no
-// doors or signs, so the non-colliding blocks are exactly air, torches and
-// crops — and a fluid destroys the latter two on the way through, which is the
+// doors or signs, so the non-colliding blocks are air, torches, crops and
+// saplings — and a fluid destroys the plants on the way through, which is the
 // behaviour anyone who has flooded a wheat farm expects.
 [[nodiscard]] inline bool fluid_replaceable(int b) {
-    return b == Air || b == Torch || b == Wheat;
+    return b == Air || b == Torch || b == Wheat || b == Sapling || b == SaplingAged;
 }
 
 // FallingBlock::isFree — "state.isAir() || state.is(BlockTags.FIRE) ||

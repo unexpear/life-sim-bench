@@ -459,7 +459,9 @@ public:
             "one shared world reach further than one learner alone.",
             "Every agent carries its own deep Q-network, its own replay buffer and its own "
             "random stream, and they all share one world: the vein you mine is gone for "
-            "everyone. Colour is the block; the white cursors are the agents."
+            "everyone. Colour is the block; the white cursors are the agents. "
+            "A cut tree drops saplings as its leaves rot, and those saplings grow "
+            "into new trees, so the town is not limited to the trunks it started with."
         };
         buildPalette();
         buildKnobs();
@@ -649,7 +651,92 @@ public:
     // cut a tree and the canopy rots over the next minute instead of hanging in
     // the air forever, which is the single most recognisable "this is
     // Minecraft" behaviour the sim was missing.
+    //
+    // Rotting leaves are also how wood comes back. Java oak leaves drop a
+    // sapling with probability 0.05 (minecraft.wiki, Oak Leaves). This world
+    // has no item entities, so a successful drop plants itself on the dirt or
+    // grass directly below. Growth is AbstractSaplingBlock.randomTick: the
+    // cell above needs internal light of at least 9, the same threshold as
+    // crops, and one random tick in seven advances a stage. The second stage
+    // grows a tree. Rolls use flora_, not rng_, so grass, mobs and fluids keep
+    // the streams the rest of the file already pinned.
     static constexpr int kRandomTicksPerSection = 3;
+    static constexpr int kSaplingLight = 9;             // same threshold as kCropMinLight
+    static constexpr int kSaplingTries = 7;             // nextInt(7) == 0
+    static constexpr int kOakSaplingDenom = 20;         // 0.05
+
+    [[nodiscard]] bool one_in(int n) {
+        return n > 0 && int(flora_.below(std::uint32_t(n))) == 0;
+    }
+
+    // A leaf is gone. With the oak drop chance, a sapling lands on the first
+    // dirt or grass beneath it. Anywhere else the drop is lost, as an item
+    // that fell onto stone would be if nobody picked it up.
+    void releaseLeaf(int x, int y, int z) {
+        if (world_.at(x, y, z) != Leaves) return;
+        setBlock(x, y, z, Air);
+        if (!one_in(kOakSaplingDenom)) return;
+        int gy = y - 1;
+        while (gy > 0 && world_.at(x, gy, z) == Air) --gy;
+        if (gy <= 0) return;
+        const std::uint8_t ground = world_.at(x, gy, z);
+        if (ground != Dirt && ground != Grass) return;
+        if (world_.at(x, gy + 1, z) != Air) return;
+        setBlock(x, gy + 1, z, Sapling);
+    }
+
+    // The trunk and crown must be air or leaves before anything is written.
+    // A failed attempt leaves the sapling where it is; the next successful
+    // roll tries again. Generation's plantTree is a different path and still
+    // writes through world_.set, so a world seed stays the map it always was.
+    bool growSapling(int x, int y, int z) {
+        const int gy = y - 1;
+        if (gy < 1) return false;
+        const std::uint8_t ground = world_.at(x, gy, z);
+        if (ground != Dirt && ground != Grass) return false;
+        TreeKind kind = biome_def(effectiveBiome(x, z)).tree;
+        if (kind == TreeKind::None) kind = TreeKind::Oak;
+        Rng r(flora_.next() | 1ull);
+        int trunk = 4, radius = 2, layers = 3;
+        switch (kind) {
+            case TreeKind::Spruce:
+            case TreeKind::SpruceAndOak: trunk = 6 + int(r.below(4)); radius = 2; layers = 4; break;
+            case TreeKind::JungleTree:   trunk = 8 + int(r.below(5)); radius = 2; layers = 3; break;
+            case TreeKind::Acacia:       trunk = 3 + int(r.below(3)); radius = 3; layers = 1; break;
+            case TreeKind::SwampOak:     trunk = 4 + int(r.below(2)); radius = 3; layers = 2; break;
+            default:                     trunk = 4 + int(r.below(3)); radius = 2; layers = 3; break;
+        }
+        if (gy + trunk + layers + 1 >= kHeight) return false;
+        auto open = [&](int px, int py, int pz, bool base) {
+            const std::uint8_t c = world_.at(px, py, pz);
+            if (base) return c == Sapling || c == SaplingAged || c == Air;
+            return c == Air || c == Leaves;
+        };
+        for (int i = 1; i <= trunk; ++i)
+            if (!open(x, gy + i, z, i == 1)) return false;
+        const int cy = gy + trunk;
+        for (int dy = 0; dy < layers; ++dy) {
+            const int rr = std::max(1, radius - dy / 2);
+            for (int dz = -rr; dz <= rr; ++dz)
+                for (int dx = -rr; dx <= rr; ++dx) {
+                    if (std::abs(dx) + std::abs(dz) + dy > radius + layers - 1) continue;
+                    if (dx == 0 && dz == 0 && dy == 0) continue;
+                    if (!open(x + dx, cy + dy, z + dz, false)) return false;
+                }
+        }
+        for (int i = 1; i <= trunk; ++i) setBlock(x, gy + i, z, Wood);
+        for (int dy = 0; dy < layers; ++dy) {
+            const int rr = std::max(1, radius - dy / 2);
+            for (int dz = -rr; dz <= rr; ++dz)
+                for (int dx = -rr; dx <= rr; ++dx) {
+                    if (std::abs(dx) + std::abs(dz) + dy > radius + layers - 1) continue;
+                    if (dx == 0 && dz == 0 && dy == 0) continue;
+                    if (world_.at(x + dx, cy + dy, z + dz) == Air)
+                        setBlock(x + dx, cy + dy, z + dz, Leaves);
+                }
+        }
+        return true;
+    }
 
     void randomTicks() {
         const int sx = std::max(1, n_ / 16), sy = std::max(1, kHeight / 16);
@@ -668,12 +755,22 @@ public:
             case Leaves: {
                 // Leaves persist only near a log. Cut the trunk and the canopy
                 // rots away over the following minute, which is exactly what a
-                // player sees and what this world never did.
+                // player sees and what this world never did. The drop, when it
+                // hits, is what replants the stand.
                 for (int dy = -4; dy <= 4; ++dy)
                     for (int dz = -4; dz <= 4; ++dz)
                         for (int dx = -4; dx <= 4; ++dx)
                             if (world_.at(x+dx, y+dy, z+dz) == Wood) return;
-                setBlock(x, y, z, Air);
+                releaseLeaf(x, y, z);
+                break;
+            }
+            case Sapling:
+            case SaplingAged: {
+                if (y + 1 >= kHeight) return;
+                if (light_.internal_light(x, y + 1, z, skyDarken()) < kSaplingLight) return;
+                if (!one_in(kSaplingTries)) return;
+                if (b == Sapling) { setBlock(x, y, z, SaplingAged); return; }
+                growSapling(x, y, z);
                 break;
             }
             case Dirt: {
@@ -948,6 +1045,9 @@ public:
     // evidence that the torch does anything, and it cannot be taken from
     // outside without a way in.
     void edit_block(int x, int y, int z, std::uint8_t b) { setBlock(x, y, z, b); }
+    // One random tick at one cell, so a sapling test does not have to wait
+    // for the section lottery to land on it.
+    void random_tick_for_test(int x, int y, int z) { randomTick(x, y, z); }
     // Mutable access to one agent, and one block broken start to finish.
     //
     // Both exist for the same reason action_counts() does. Several of the rules
@@ -1311,6 +1411,8 @@ private:
     // [W-LIGHT]: crops need an internal light of 9 or more to grow. This is what
     // makes a torch over a field do something and a field in a cave pointless.
     static constexpr int kCropMinLight = 9;
+    static_assert(kSaplingLight == kCropMinLight,
+                  "saplings and crops share the published light threshold of 9");
 
     // ── generation ──────────────────────────────────────────────────────────
     //
@@ -1336,6 +1438,7 @@ private:
         // ticks and the spawn candidates. It was a fixed constant, so grass
         // spread and mobs appeared in the same order on every seed.
         rng_.reseed(worldSeed() ^ 0xB10CC17Aull);
+        flora_.reseed(worldSeed() ^ 0x5A911Eull);
         biomes_.build(worldSeed(), n_);
         // No generic trees: they would put an oak in the middle of a desert
         // before the biome pass ever ran. Trees are planted per biome below.
@@ -1967,6 +2070,7 @@ private:
         put(RedstoneOre,190, 62,  56);  put(LapisOre,   52,  86, 176);
         put(EmeraldOre, 62, 200, 110);  put(Obsidian,   32,  26,  48);
         put(Gravel,    134, 130, 126);  put(Lava,      224, 116,  40);
+        put(Sapling,    78, 168,  72);  put(SaplingAged, 46, 120,  58);
         pal_[std::size_t(kBlocks)] = Swatch{{255, 255, 255}, "agent"};
         // One more index than there are blocks plus the agent marker: the body
         // you are driving. A town of white cursors with no way to tell which one
@@ -3277,12 +3381,17 @@ private:
         }
         if (--a.miningLeft > 0) return;
 
-        setBlock(bx, by, bz, Air);
         a.miningX = -1;
-        // Stone drops cobblestone; ore drops itself; leaves drop nothing; and
-        // a block broken below its harvest tier drops nothing either.
-        const std::uint8_t drop = (b == Stone) ? std::uint8_t(Cobble) : b;
-        if (yields && drop != Leaves) give(a, drop, 1);
+        // Stone drops cobblestone; ore drops itself; a block broken below its
+        // harvest tier drops nothing. Leaves do not enter the pack: the oak
+        // sapling drop is planted by releaseLeaf, the same roll a rotting
+        // leaf uses, because there is no item on the ground to pick up.
+        if (b == Leaves) releaseLeaf(bx, by, bz);
+        else {
+            setBlock(bx, by, bz, Air);
+            const std::uint8_t drop = (b == Stone) ? std::uint8_t(Cobble) : b;
+            if (yields) give(a, drop, 1);
+        }
         ++a.mined;
         exhaust(a, kExhMine);
         wearTool(a);
@@ -3333,6 +3442,26 @@ private:
             a.items[ItTorch] -= 1;
             ++a.placed; ++structures_; ++torchesPlaced_;
             return;
+        }
+        // A sapling in the pack is a tree waiting for dirt. Nothing else in
+        // the place list plants one, so without this a broken sapling sits in
+        // a slot forever and the stand it came from does not come back.
+        if (a.blocks[Sapling] > 0 || a.blocks[SaplingAged] > 0) {
+            static constexpr int dx[5] = {-1, 1, 0, 0, 0};
+            static constexpr int dy[5] = { 0, 0, 0, 0, 1};
+            static constexpr int dz[5] = { 0, 0,-1, 1, 0};
+            const int d = placeSlot(a);
+            if (d >= 0) {
+                const int x = a.x + dx[d], y = a.y + dy[d], z = a.z + dz[d];
+                const std::uint8_t floor = world_.at(x, y - 1, z);
+                if (floor == Dirt || floor == Grass) {
+                    const int held = a.blocks[Sapling] > 0 ? int(Sapling) : int(SaplingAged);
+                    setBlock(x, y, z, Sapling);
+                    a.blocks[std::size_t(held)] -= 1;
+                    ++a.placed; ++structures_;
+                    return;
+                }
+            }
         }
         int pick = -1;
         for (int b : {Cobble, Plank, Road, Dirt, Stone, Sand, Grass}) {
@@ -4391,6 +4520,7 @@ private:
     // agent's stream would make the grass grow differently depending on who
     // happened to act first.
     Rng rng_{0xB10CC17Aull};
+    Rng flora_{0x5A911Eull};
 };
 
 inline SimPtr make_voxelcity(int n = 96) { return std::make_unique<VoxelCity>(n); }
