@@ -84,7 +84,7 @@ try {
     Verify-Saves '--verify-saved-write' 'saved-write'
     Verify-Saves '--verify-saved-read' 'saved-reopen'
     Install-Choice 'selected' '/COMPONENTS="core,tools,templates\sorting2d,templates\locomotion"' 2
-    Install-Choice 'full' '/TYPE=full' 37
+    Install-Choice 'full' '/TYPE=full' 38
     Install-Choice 'empty-again' '/TYPE=empty' 0
     Verify-Saves '--verify-saved-read' 'saved-after-template-removal'
     $before = @(Get-ChildItem -LiteralPath $data -Recurse -File | Get-FileHash -Algorithm SHA256)

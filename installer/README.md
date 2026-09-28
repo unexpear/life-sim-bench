@@ -69,7 +69,7 @@ $env:LIFESIM_USER_DATA = "$PWD\native\build-runner\persistence-qa"
 
 Use a dedicated empty folder for each write/read pair. For installed-layout
 testing, copy the current `bench_ui_shot.exe` beside the installed executable;
-`--verify-library 0`, `--verify-library 2` or `--verify-library 37` checks that
+`--verify-library 0`, `--verify-library 2` or `--verify-library 38` checks that
 exactly the requested number of templates is available and no simulation was
 created during startup. The test executable is not part of the installer.
 

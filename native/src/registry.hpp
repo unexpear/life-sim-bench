@@ -9,6 +9,7 @@
 #include "sims/von_neumann.hpp"
 #include "sims/small_lattice.hpp"
 #include "sims/continuous.hpp"
+#include "sims/collision.hpp"
 #include "sims/pps.hpp"
 #include "sims/langton_loops.hpp"
 #include "sims/spatial_pd.hpp"
@@ -73,6 +74,7 @@ inline const std::vector<Entry>& registry() {
         // No lattice at all.
         {"boids",     "Continuous space",     "sims/continuous.hpp",   []{ return make_boids(); },           900},
         {"particles", "Continuous space",     "sims/continuous.hpp",   []{ return make_particle_life(); },  1200},
+        {"collision2d","Continuous space",    "sims/collision.hpp",    []{ return make_collision(); },         30},
         {"pps",       "Continuous space",     "sims/pps.hpp",          []{ return make_pps(); },             900},
 
         // Something that learns.
