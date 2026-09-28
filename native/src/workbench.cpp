@@ -1184,9 +1184,36 @@ void newRuleSimulation() {
     g.say("Rule simulation created in your library. Edit its rule, then Apply & restart. Save as gives it a name.");
 }
 
+void newFromLibraryModel(const std::string& id) {
+    namespace p=bench::projects;
+    const bench::Entry* entry=nullptr;
+    for(const auto& e:bench::registry()) if(e.id==id) entry=&e;
+    if(!entry){g.say("That library simulation is not available.");return;}
+    auto sim=entry->make();
+    if(!sim){g.say("Could not copy that simulation.");return;}
+    const std::string title=bench::catalog_title(id);
+    const auto path=bench::path_from_utf8(bench::Paths::get().projects())/(p::copy_stem(title)+" "+p::token()+".benchsim");
+    p::Document document;
+    p::library_start(document,title,id,*sim);
+    std::string error;
+    if(!p::save(path,document,error)){g.say("Could not copy that simulation: "+error);return;}
+    rebuildRows();
+    for(std::size_t i=0;i<g.rows.size();++i)if(g.rows[i].projectPath==p::utf8(path)){select(i);break;}
+    g.running=false;g.showRight=true;
+    g.say("Copied "+title+" into your library. Settings start at the template defaults. Save as gives it a name.");
+}
+
 void createSimulationMenu(RECT rect) {
     queueMenu(rect,{{"Rule-based simulation (no coding)",[]{newRuleSimulation();}},
-                    {"C++ simulation",[]{newFromTemplate();}}});
+                    {"C++ simulation",[]{newFromTemplate();}},
+                    {"Copy a library simulation",[rect]{
+                        std::vector<MenuItem> items;
+                        for(const auto& e:bench::registry()) {
+                            const std::string id=e.id;
+                            items.push_back(MenuItem{bench::catalog_title(id),[id]{newFromLibraryModel(id);}});
+                        }
+                        queueMenu(rect,std::move(items));
+                    }}});
 }
 
 // ── syntax colouring, deliberately shallow ──────────────────────────────────

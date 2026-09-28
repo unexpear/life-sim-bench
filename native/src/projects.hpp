@@ -127,9 +127,29 @@ inline bool save(const fs::path& path,Document d,std::string& error) {
         return atomic_write(path,encode(d),error);
     } catch(const std::exception& e) {error=e.what();return false;}
 }
+// A legal file stem for "Copy a library simulation". The document's display
+// name can keep punctuation; the file name cannot keep the characters Windows
+// rejects, and a very long title is shortened so the token still fits.
+inline std::string copy_stem(std::string name) {
+    for(char& c:name)
+        if(c=='\\'||c=='/'||c==':'||c=='*'||c=='?'||c=='"'||c=='<'||c=='>'||c=='|') c='-';
+    if(name.size()>80) name.resize(80);
+    while(!name.empty()&&(name.back()==' '||name.back()=='.')) name.pop_back();
+    if(name.empty()) name="Copy";
+    return name;
+}
 inline void capture_settings(Sim& sim,Document& d) {
     for(const auto& k:sim.knobs())d.knobs.emplace_back(k.key,k.value);
     for(const auto& s:sim.switches())d.switches.emplace_back(s.key,s.value);
+}
+// A saved starting point whose model is a registry id and whose settings are
+// that simulation's defaults. Source and DLL stay empty: this is not a custom
+// C++ simulation, and it does not capture a live world.
+inline void library_start(Document& d,std::string name,std::string model,Sim& sim) {
+    d=Document{};
+    d.name=std::move(name);
+    d.model=std::move(model);
+    capture_settings(sim,d);
 }
 inline bool apply_settings(Sim& sim,const Document& d,std::string& error) {
     for(const auto& [key,value]:d.knobs) {
