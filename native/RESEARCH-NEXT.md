@@ -73,7 +73,7 @@ These Windows and runtime questions stay open, and this checkout does not instal
 - DOOMFLY, which has no Windows DLL branch in the inspected kernel builder.
 - FlyGym 2.1.0 / MuJoCo, whose inspected install guide does not establish native Windows for the combination we would ship.
 
-`native/src/actors/fly.hpp` and `fly_world.hpp` are local research stubs for a simple body and a reactive controller. They are not registered, not exported by `--export-templates`, and not a Brian2 or FlyWire build.
+`native/src/actors/fly.hpp` and `fly_world.hpp` are hosted by the registered `flyarena` template (`sims/fly_arena.hpp`). They remain a synthetic reactive controller — not a Brian2 brain and not a FlyWire build. Optional pack/venv discovery is separate (`fly_pack.hpp`, `fly_brian2.hpp`).
 
 ### Proposed actor contract and ownership
 
@@ -200,5 +200,8 @@ Not verified: installation of these runtimes, reproduction of results, native Wi
 
 The findings above stand. What has since been written down in the tree:
 
-- **Particle Collision Lab** (`collision2d`) now builds and steps with vendored Box2D 3.1.1, denser presets, edit tools beyond stamp, and a scene checkpoint in the project body. Box2D ships in-tree (MIT), not as a separate offline pack — see PACKS.md. Jolt 3D stays a later stage.
-- **Fly Arena** (`flyarena`) is registered and hosts the reusable actor headers under `native/src/actors/` with the synthetic `ReactiveController`. Brian2/Shiu and FlyWire remain uninstalled; the Windows runtime pin above is still a document, not a tested install.
+- **Particle Collision Lab** (`collision2d`) now builds and steps with vendored Box2D 3.1.1, denser presets, edit tools beyond stamp, and a scene checkpoint in the project body. Box2D ships in-tree (MIT), not as a separate offline pack — see PACKS.md. Jolt 3D stays a later stage for a full link; stub + pin are present (below).
+- **Fly Arena** (`flyarena`) is registered and hosts the reusable actor headers under `native/src/actors/` with the synthetic `ReactiveController`.
+- **Brian2 / Shiu Windows runtime** — setup script and docs under `native/scripts/` and `native/BRIAN2-WINDOWS.md`. A portable venv at `userdata/brian2-venv` (gitignored) was verified importable on this checkout; Cython codegen needs MSVC (`vcvars64.bat`), not MinGW alone. `fly_brian2.hpp` locates the interpreter for a future bounded subprocess; it does not replace `ReactiveController`.
+- **FlyWire local optional pack** — `userdata/packs/flywire-nc/` (CC BY-NC 4.0, gitignored) with Shiu `Connectivity_783.parquet` / `Completeness_783.csv`, `MANIFEST.json` `dataset_hash`, and `fly_pack.hpp` discovery. Never for the GPL installer.
+- **Jolt / FlyGym groundwork** — `native/third_party/jolt/PIN.md` (v5.6.0), CMake stub, compileable `SphereWorld` scaffolding, and `jolt_body_notes.hpp` stating MuJoCo≠Jolt shared contacts remain blocked. Optional `fetch_jolt_pin.ps1` downloads upstream sources without enabling `BENCH_WITH_JOLT` by default.

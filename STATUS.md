@@ -26,4 +26,8 @@ Source on this branch has moved past those binaries. The 2026-09-28 follow-ups l
 
 **Create simulation** can copy a library template into a saved `.benchsim`. The copy's model is that registry id and its settings start at the template defaults. It does not capture painted cells, timeline history or a trained brain, which is the same limit as every other save. The menu itself is Win32 and was not exercised on the Linux build.
 
-**Fly Brain on Windows** remains pinned in the research brief: Shiu/Brian2 first, as a reference; FlyWire data stays an optional CC BY-NC 4.0 pack and never goes in the main GPL installer. Brian2, Eon, DOOMFLY and FlyGym remain unverified on this toolchain. CI does not install those runtimes. The registered arena does not wait on them.
+**Fly Brain on Windows** — local path landed on this checkout: userdata/brian2-venv (Python 3.11, Brian2 2.7.x) imports; Cython codegen works after MSVC cvars64.bat. Scripts/docs: 
+ative/scripts/setup_brian2_windows.ps1, 
+ative/BRIAN2-WINDOWS.md. Optional FlyWire v783 pack under userdata/packs/flywire-nc/ (CC BY-NC, gitignored) with dataset_hash in MANIFEST.json; C++ discovery in ly_pack.hpp. Never staged into the installer. Eon, DOOMFLY and full FlyGym remain unverified. CI still does not install these runtimes. The registered lyarena keeps ReactiveController.
+
+**Jolt 3D / FlyGym** — honest groundwork only: vendored pin notes + CMake stub + compileable SphereWorld scaffolding and embodiment-boundary notes (jolt_and_mujoco_share_contacts = false). Full Jolt link and FlyGym assets are not claimed done.
