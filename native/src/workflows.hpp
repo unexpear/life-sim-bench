@@ -36,6 +36,7 @@ inline const std::vector<Workflow>& workflows() {
         {"nowakmay", "Watch cooperation spread", "Adjust the temptation to defect and follow the cooperator fraction in Measurements.", "Add defectors", {"b","size"}, true},
         {"boids", "Balance flocking forces", "Compare separation, alignment and cohesion. Measurements shows order and spacing together.", "Disturb flock", {"size","separation","alignment","cohesion","radius"}, true},
         {"particles", "Explore particle interactions", "Tune the interaction radius, core repulsion and damping; use trails to follow the motion.", "Disturb particles", {"size","rmax","beta","friction","force"}, true},
+        {"collision2d", "Watch disks collide", "Choose a scene. Restitution 1 is the elastic case the oracle checks; lower values keep less of the closing speed. Saving stores these settings, not live positions.", "Disturb disks", {"preset","restitution","seed"}, true},
         {"pps", "Explore local turning", "Change fixed turn, neighbour-dependent turn and movement speed independently.", "Disturb particles", {"size","alpha","beta","v","r"}, true},
         {"gridworld", "Teach an agent a route", "Train by episode. Compare route length and reward; keep a run before changing exploration.", "", {"epsilon","alpha","gamma","size"}},
         {"netviz", "Look inside a learning network", "Drag nodes to rearrange the diagram. Select an XOR example and follow its activations.", "New weights", {"showcase","hidden","lr"}},
@@ -84,6 +85,7 @@ inline std::string catalog_title(const std::string& id) {
     if (id == "nowakmay") return "Spatial prisoner's dilemma";
     if (id == "boids") return "Boids";
     if (id == "particles") return "Particle Life";
+    if (id == "collision2d") return "Particle Collision Lab";
     if (id == "pps") return "Primordial Particle System";
     if (id == "gridworld") return "Q-learning gridworld";
     if (id == "netviz") return "Neural network, live";

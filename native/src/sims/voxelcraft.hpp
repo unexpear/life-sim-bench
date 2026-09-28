@@ -414,6 +414,11 @@ private:
         // Both scale factors are exactly 1 at n = 24, so the published world is
         // generated block for block as it always was, from the identical
         // sequence of random draws.
+        //
+        // This stand is finite on purpose. The diamond-problem timings quoted
+        // above were measured on a map that does not replant itself; a sapling
+        // that grew a new trunk would change the search the benchmark is. A
+        // town that has to last uses voxelcity's saplings instead.
         const double area = double(n_) * double(n_);
         const int trees = std::max(1, int(8.0 * area / kBaseArea + 0.5));
         for (int t = 0; t < trees; ++t) {

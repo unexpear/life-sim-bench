@@ -14,8 +14,10 @@ Choose any installed template from the library. Use Create simulation to start
 your own, or Open simulation to add a .benchsim project. Empty-bench installs
 include the same workspace and can open these files later.
 
-Create simulation offers a rule-based simulation with no coding, or a C++
-simulation. Rule lab supports B/S, Hensel, four/six-neighbour rules and
+Create simulation offers a rule-based simulation with no coding, a C++
+simulation, or a copy of a library template. The copy is a saved project
+whose model is that template and whose settings start at the template
+defaults. Rule lab supports B/S, Hensel, four/six-neighbour rules and
 Generations with up to 256 states. Paste a rule, then Apply & restart.
 
 Save as stores a named simulation in your library. It saves the custom source,

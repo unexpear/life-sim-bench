@@ -1,6 +1,7 @@
 #include "projects.hpp"
 #include "sims/sorting.hpp"
 #include "sims/rulespec.hpp"
+#include "sims/life_like.hpp"
 #include <cstdio>
 
 int main() {
@@ -50,6 +51,18 @@ int main() {
     const auto copied=moved/savedSource.parent_path().filename();fs::create_directories(copied);
     fs::copy_file(savedSource,copied/savedSource.filename());fs::copy_file(savedDll,copied/savedDll.filename());
     check(p::read(moved/saved.filename(),reopened,error)&&fs::is_regular_file(p::resolve(moved/saved.filename(),reopened.source)),"a project and its assets can move together");
+    auto life=bench::make_life(64);float density=-1.f;
+    for(const auto& k:life->knobs())if(k.key=="density")density=k.value;
+    p::Document libraryCopy;p::library_start(libraryCopy,"Conway's Game of Life","life",*life);
+    const auto copyPath=root/(p::copy_stem("Conway's Game of Life")+".benchsim");
+    check(p::save(copyPath,libraryCopy,error)&&p::read(copyPath,reopened,error),"save a library simulation as a starting project");
+    check(reopened.model=="life"&&reopened.source.empty()&&reopened.dll.empty()&&reopened.name=="Conway's Game of Life","a library copy names a registry model and keeps no custom source");
+    auto again=bench::make_life(64);
+    check(p::apply_settings(*again,reopened,error),"reopening a library copy applies its saved settings");
+    float againDensity=-2.f;for(const auto& k:again->knobs())if(k.key=="density")againDensity=k.value;
+    check(againDensity==density,"the copy starts from the template's default settings");
+    check(p::copy_stem("Day & Night: a/b*?")=="Day & Night- a-b--","a copy file stem drops characters a path cannot hold");
+    check(p::copy_stem("   ")=="Copy"&&p::copy_stem(std::string(90,'n')).size()==80,"an empty or very long copy name is still a usable stem");
     bool clean=true;for(const auto& entry:fs::directory_iterator(root))if(p::utf8(entry.path()).find(".tmp-")!=std::string::npos)clean=false;
     check(clean,"successful and failed saves leave no temporary document files");
     // This process owns the uniquely named fixture directory and all its files.

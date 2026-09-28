@@ -53,6 +53,9 @@ enum Block : std::uint8_t {
     Wood, Leaves, Coal, IronOre, GoldOre, DiamondOre,
     Plank, Cobble, Table, Furnace, Torch, Chest, Farmland, Wheat, Road,
     RedstoneOre, LapisOre, EmeraldOre, Obsidian, Gravel, Lava,
+    // Two growth stages, matching Java's oak sapling. Not a full cube: agents
+    // walk through them, and they are not a second kind of log.
+    Sapling, SaplingAged,
     kBlocks
 };
 
@@ -72,6 +75,7 @@ enum Block : std::uint8_t {
         case RedstoneOre: return "redstone ore"; case LapisOre: return "lapis ore";
         case EmeraldOre: return "emerald ore";   case Obsidian: return "obsidian";
         case Gravel: return "gravel";      case Lava: return "lava";
+        case Sapling: return "sapling";    case SaplingAged: return "sapling, stage 1";
         default: return "?";
     }
 }
@@ -80,7 +84,8 @@ enum Block : std::uint8_t {
 // which is one of the few ways this world can kill you and therefore one of the
 // few things survival can be about.
 [[nodiscard]] inline bool block_solid(int b) {
-    return b != Air && b != Water && b != Lava && b != Torch && b != Wheat;
+    return b != Air && b != Water && b != Lava && b != Torch && b != Wheat
+        && b != Sapling && b != SaplingAged;
 }
 
 // ── breaking a block, by the game's own arithmetic ──────────────────────────
@@ -112,6 +117,9 @@ struct BlockRule {
         case Grass:                                        return {0.6f, 0, false};
         case Leaves:                                       return {0.2f, 0, false};
         case Wheat:                                        return {0.0f, 0, false};
+        // Java saplings break instantly. blockworld's break_ticks still
+        // charges one tick, the same floor every zero-hardness block gets.
+        case Sapling: case SaplingAged:                    return {0.0f, 0, false};
         // axe materials
         case Wood:  case Plank:                            return {2.0f, 0, false};
         case Table:                                        return {2.5f, 0, false};

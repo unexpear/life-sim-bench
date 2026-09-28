@@ -217,6 +217,7 @@ inline constexpr int kSpawnLightRollSides = 8;
         case Air:                  return 0;   // [W-OPAC] air
         case Torch:                return 0;   // [W-OPAC] non-solids
         case Wheat:                return 0;   // [W-OPAC] non-solids (crops)
+        case Sapling: case SaplingAged: return 0;   // plants, same as crops
         case Chest:                return 0;   // [W-OPAC] non-full-block solids
         case Water:                return 1;   // [W-LIGHT] light-filtering
         case Leaves:               return 1;   // [W-LIGHT] light-filtering

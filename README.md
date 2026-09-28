@@ -1,6 +1,6 @@
 # Life-sim Workbench
 
-A native Windows workbench with 37 optional simulation templates and support for your own simulations. Choose a template or saved simulation from the searchable library, then work with that one world in a dedicated workspace.
+A native Windows workbench with 38 optional simulation templates and support for your own simulations. Choose a template or saved simulation from the searchable library, then work with that one world in a dedicated workspace.
 
 Free and open source under **GPL-3.0-or-later**. See [licensing](LICENSING.md),
 [third-party credits](THIRD_PARTY_NOTICES.md) and the [license audit](LICENSE-AUDIT.md).
@@ -19,7 +19,7 @@ The library reads metadata without constructing simulations. There is one active
 
 **Save as / Ctrl+S** stores a named `.benchsim` simulation. It keeps settings, custom rulestrings, custom creature bodies, and a custom C++ simulation's source and compiled DLL when available. Named simulations stay in the library after restarting, including files saved outside the default folder. **Open simulation / Ctrl+O** imports a `.benchsim` file and copies its custom assets into your library.
 
-Switching simulations or closing normally saves the current named project automatically. An unnamed template is kept as **Last workspace**. **Create simulation** immediately creates a permanent project, even before its first successful build.
+Switching simulations or closing normally saves the current named project automatically. An unnamed template is kept as **Last workspace**. **Create simulation** immediately creates a permanent project, even before its first successful build. It can start a rule, a C++ source file, or a copy of a library template with that template's default settings.
 
 Reopening starts a new run from the saved setup. This is not a full checkpoint: painted cells, timeline history, current sorting progress and trained populations/brains are not restored.
 
@@ -38,7 +38,7 @@ Installed copies keep saved simulations under `%LOCALAPPDATA%\LifeSimWorkbench\S
 
 Open **Rule lab · custom cellular automata**, or choose **Create simulation → Rule-based simulation (no coding)** even on an empty bench. Paste or edit B/S, Generations (2–256 states), Hensel rules such as `B2-a/S12`, or four/six-neighbour rules with `V`/`H` suffixes. The editor validates drafts and offers examples, selection, paste, undo, Apply and Cancel. Applying retains your world settings; saves and dedicated runs use the applied rule. See the [rulestring guide](native/RULE-LAB.md).
 
-Completed source research for a reusable fly-brain actor, its own simulation, and 2D/3D particle collisions is in [Simulation research brief](native/RESEARCH-NEXT.md). It compares models and physics engines, checks data licenses and Windows constraints, and defines save/installer requirements. These integrations are not implemented yet.
+Completed source research for a reusable fly-brain actor, its own simulation, and 2D/3D particle collisions is in [Simulation research brief](native/RESEARCH-NEXT.md). It compares models and physics engines, checks data licenses and Windows constraints, and defines save/installer requirements. The first collision template is an in-tree disk world; Box2D is not linked. Fly-brain runtimes are pinned there and are not installed. Headers under `native/src/actors/` are research stubs, not templates.
 
 ## Creature evolution
 
