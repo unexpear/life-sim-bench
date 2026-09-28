@@ -62,6 +62,19 @@ FlyGym **2.1.0** declares Python >=3.12,<3.15 and MuJoCo >=3.9,<3.10; Warp is op
 
 DOOMFLY documents several GB of RAM. Its inspected kernel builder selects a macOS dynamic library or a .so file otherwise, invokes clang++ with -fPIC, and has no Windows DLL branch. It needs a port or separate Linux runtime before native Windows packaging. [Builder source](https://github.com/nftechie/doomfly/blob/71ecf53d78eaffaf1a57ed7b0ccf5d458abc9f33/doom/build_kernel.py)
 
+### Pinned Windows path (2026-09-28)
+
+The intended first Windows path is the Shiu model on Brian2, as a reference experiment, before any accelerated backend and before any embodied actor. FlyWire connectivity stays an optional pack under CC BY-NC 4.0. It is not part of the main GPL installer, and a code license does not relicense that data. An empty or full template install must still run without it.
+
+These Windows and runtime questions stay open, and this checkout does not install them in CI:
+
+- Brian2 on the bench's bundled GCC, including whether runtime Cython generation still needs Microsoft's compiler.
+- Eon fly-brain as an acceleration candidate against the Shiu reference, including its Ubuntu/WSL2 and CUDA notes.
+- DOOMFLY, which has no Windows DLL branch in the inspected kernel builder.
+- FlyGym 2.1.0 / MuJoCo, whose inspected install guide does not establish native Windows for the combination we would ship.
+
+`native/src/actors/fly.hpp` and `fly_world.hpp` are local research stubs for a simple body and a reactive controller. They are not registered, not exported by `--export-templates`, and not a Brian2 or FlyWire build.
+
 ### Proposed actor contract and ownership
 
 Use an optional controller process owned by the active world. Load it when needed, release it on world switching, and show loading/progress/cancellation. Keep incompatible Python dependency sets in separate environments.
@@ -181,4 +194,11 @@ Before implementation reaches the relevant choice, settle: physical versus subat
 
 Verified: local integration constraints, published limitations, data/license statements, selected dependency declarations, build/checkpoint source and physics documentation.
 
-Not verified: installation of these runtimes, reproduction of results, native Windows packaging, integration accuracy, total pack size, real-time operation or large-scene capacity. These remain explicit prototype/release gates. The released application and installer are unchanged.
+Not verified: installation of these runtimes, reproduction of results, native Windows packaging, integration accuracy, total pack size, real-time operation or large-scene capacity. These remain explicit prototype/release gates. The 2026-09-23 published binaries recorded in STATUS.md are unchanged by the notes above.
+
+## Status after the 2026-09-28 follow-up
+
+The findings above stand. What has since been written down in the tree:
+
+- **Particle Collision Lab** (`collision2d`) is a registered template: a walled box of disks, the one-dimensional elastic oracle, a fixed 1/60 s step and four substeps, and version-1 project settings. It is not a Box2D build. Still open: vendor Box2D 3.1.1 and compile it with the workbench toolchain; fast and dense cases, timing and memory; editing beyond the stamp; a checkpoint that stores more than knobs; the optional offline pack. Jolt 3D stays a later stage.
+- **Fly actor stubs** live under `native/src/actors/` and are not shipped templates. The Windows runtime pin above is a document, not a tested install.
