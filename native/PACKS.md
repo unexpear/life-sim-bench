@@ -20,6 +20,7 @@ builds a static `box2d` library; samples and upstream tests are not required.
 | Pack | Why separate | Status |
 | --- | --- | --- |
 | Particle Lab 3D (Jolt) | Larger engine, separate validation | Later |
+| Fly Arena (reactive stub) | Synthetic only; no NC data | In core via `flyarena` registry entry |
 | Fly Brain runtime/data | FlyWire CC BY-NC 4.0; must not enter the main GPL installer | Research only |
 | Detailed Fly Body (FlyGym/MuJoCo) | Large assets; Windows route unverified | Research only |
 

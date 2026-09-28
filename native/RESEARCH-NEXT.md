@@ -201,4 +201,4 @@ Not verified: installation of these runtimes, reproduction of results, native Wi
 The findings above stand. What has since been written down in the tree:
 
 - **Particle Collision Lab** (`collision2d`) now builds and steps with vendored Box2D 3.1.1, denser presets, edit tools beyond stamp, and a scene checkpoint in the project body. Box2D ships in-tree (MIT), not as a separate offline pack — see PACKS.md. Jolt 3D stays a later stage.
-- **Fly actor stubs** live under `native/src/actors/` and are not shipped templates. The Windows runtime pin above is a document, not a tested install.
+- **Fly Arena** (`flyarena`) is registered and hosts the reusable actor headers under `native/src/actors/` with the synthetic `ReactiveController`. Brian2/Shiu and FlyWire remain uninstalled; the Windows runtime pin above is still a document, not a tested install.

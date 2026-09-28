@@ -1,6 +1,6 @@
 # The roster
 
-The desktop library now contains 38 simulations. The notes below cover the original collection, the movement lab and sorting labs; [the registry](native/src/registry.hpp) lists every current entry. Each simulation's in-app Guide states its provenance, approximations and replication verdict.
+The desktop library now contains 39 simulations. The notes below cover the original collection, the movement lab and sorting labs; [the registry](native/src/registry.hpp) lists every current entry. Each simulation's in-app Guide states its provenance, approximations and replication verdict.
 
 ## Sorting
 
@@ -72,7 +72,8 @@ Frozen at both ends, alive strictly between. A perfect world and a dead one are 
 |---|---|---|---|
 | ○ | **Boids** | 1987 | Reynolds, SIGGRAPH '87. Pure phenotype — no bird has a description of itself to pass on. |
 | ○ | **Particle Life** | 2010s | Ventrella's *Clusters*, popularised by CodeParade. **Self-organises; does not replicate**, whatever the internet says. The attraction matrix is copied by whoever runs the simulation, never by the particles. |
-| ○ | **Particle Collision Lab** | 2026 | Disks in a walled box, with the one-dimensional elastic oracle. Box2D 3.1.1 is the engine named in the research brief and is not linked in this build. Disks bounce; they do not copy themselves. |
+| ○ | **Particle Collision Lab** | 2026 | Disks in a walled box, with the one-dimensional elastic oracle. Steps with vendored Box2D 3.1.1. Disks bounce; they do not copy themselves. |
+| ○ | **Fly Arena (reactive stub)** | 2026 | Millimetre walking disk with synthetic odor/light/clearance sensors and a hand-written reactive controller. First embodiment of the fly actor contract; not a connectome and not FlyWire data. |
 | ● | **Primordial Particle System** | 2016 | Schmickl, Stefanec & Crailsheim, *Sci Rep* 6:37969. The only continuous system here that earns a Yes: structures condense from a uniform gas, grow, and divide. |
 
 A note on Reynolds' naming, since it is usually got wrong: the 1987 paper calls the rules **Collision Avoidance, Velocity Matching and Flock Centering**. Separation / Alignment / Cohesion are his own *later* names, from his boids page and the 1999 steering-behaviours work. He coined both — but not in 1987.
