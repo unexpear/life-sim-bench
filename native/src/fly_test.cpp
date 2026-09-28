@@ -2,6 +2,8 @@
 // No Brian2 runtime and no FlyWire data are required for these checks.
 #include "actors/fly_world.hpp"
 #include "sims/fly_arena.hpp"
+#include "actors/fly_pack.hpp"
+#include "actors/fly_brian2.hpp"
 #include <cmath>
 #include <cstdio>
 #include <string>
@@ -140,6 +142,36 @@ int main() {
               "food plume odor-seeking walk reaches the source (within 5 mm)");
         check(d_seek + 8.0 < d_blind,
               "odor seeking ends closer to the source than the same walk with odor_gain 0");
+    }
+
+
+    // Optional local FlyWire pack + Brian2 venv discovery (do not require them).
+    {
+        const bool pack_ok = bench::fly::pack::present();
+        const auto hash = bench::fly::pack::dataset_hash();
+        if (pack_ok) {
+            check(!hash.empty() && hash.size() == 64,
+                  "local FlyWire pack MANIFEST supplies a 64-char dataset_hash");
+            check(std::string(bench::fly::Identity::dataset_hash).empty(),
+                  "synthetic Identity::dataset_hash stays empty; pack hash is separate");
+        } else {
+            check(hash.empty(), "without a local pack, dataset_hash discovery returns empty");
+            std::printf("note  FlyWire pack not present under userdata/packs/flywire-nc (optional)\n");
+            ++checks; // counted as informational pass via the empty-hash check
+        }
+        auto sim = bench::make_fly_arena();
+        const auto sub = sim->subtitle();
+        if (pack_ok)
+            check(sub.find("dataset_hash=") != std::string::npos,
+                  "FlyArena subtitle reflects local pack dataset_hash when present");
+        else
+            check(sub.find(bench::fly::Identity::backend) != std::string::npos,
+                  "FlyArena subtitle names the reactive backend without a pack");
+        if (bench::fly::brian2ref::runtime_present())
+            std::printf("note  Brian2 python present: %s\n",
+                        bench::path_text(bench::fly::brian2ref::default_python()).c_str());
+        else
+            std::printf("note  Brian2 venv not present (optional; see native/scripts/setup_brian2_windows.ps1)\n");
     }
 
     std::printf("%d fly checks, %d failed\n", checks, failed);

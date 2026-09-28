@@ -11,6 +11,8 @@
 #pragma once
 #include "../sim.hpp"
 #include "../actors/fly_world.hpp"
+#include "../actors/fly_pack.hpp"
+#include "../actors/fly_brian2.hpp"
 #include <algorithm>
 #include <cmath>
 #include <memory>
@@ -31,7 +33,9 @@ public:
             "2026",
             "Life-sim Workbench research stub; not a connectome model",
             "native/RESEARCH-NEXT.md, Fly brain — first embodiment. Controller: "
-            "bench::fly::ReactiveController. No FlyWire data; no Brian2 runtime.",
+            "bench::fly::ReactiveController. Optional local FlyWire pack and "
+            "Brian2 venv are discovered when present (see fly_pack.hpp); neither "
+            "is required to run this synthetic arena.",
             Replication::No,
             "No. A single disk walks an arena. Nothing copies itself.",
             "A millimetre-scale walking disk with left/right odor and light sensors, "
@@ -87,7 +91,11 @@ public:
     std::uint64_t generation() const override { return world_.tick; }
     std::vector<Knob>& knobs() override { return knobs_; }
     std::string subtitle() const override {
-        return std::string(fly::Identity::backend) + " / " + fly::Identity::body;
+        std::string s = std::string(fly::Identity::backend) + " / " + fly::Identity::body;
+        const auto h = fly::pack::dataset_hash();
+        if (!h.empty()) s += " / " + fly::pack::identity_label();
+        else if (fly::brian2ref::runtime_present()) s += " / brian2-venv";
+        return s;
     }
 
     void on_knob(const std::string& key, float v) override {

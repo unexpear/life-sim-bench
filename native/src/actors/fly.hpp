@@ -30,7 +30,9 @@ struct Action {
     double forward=0,turn=0; // 0..1 speed demand, -1..1 yaw demand
 };
 // Contract identity for hosts and save documents. Synthetic backends leave
-// dataset_hash empty; a future Brian2/FlyWire pack must fill it.
+// dataset_hash empty. When a local FlyWire pack is present, hosts should also
+// surface pack::dataset_hash() (see fly_pack.hpp); that value is not baked into
+// this constexpr because the pack is optional and gitignored under userdata/.
 struct Identity {
     static constexpr unsigned contract_version = Observation::version;
     static constexpr const char* backend = "reactive-stub";
