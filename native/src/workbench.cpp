@@ -724,6 +724,7 @@ bool saveCurrent(std::string destination,bool named,std::string& error) {
         for(const auto& [key,value]:g.pendingSetup)for(auto& setting:document.knobs)if(setting.first==key)setting.second=value;
         if(auto* rule=ruleLab())document.rule=rule->spec().text;
         if(auto* body=dynamic_cast<bench::Locomotion*>(g.sim.get()))document.body=body->saveBody();
+        else if(auto* collision=dynamic_cast<bench::CollisionLab*>(g.sim.get()))document.body=collision->saveScene();
     }
     if(!p::save(bench::path_from_utf8(destination),document,error))return false;
     if(named) {
@@ -788,8 +789,11 @@ void select(std::size_t i) {
         std::string error;
         if(!bench::projects::apply_settings(*g.sim,document,error))throw std::runtime_error(error);
         if(!document.body.empty()) {
-            auto* sim=dynamic_cast<bench::Locomotion*>(g.sim.get());
-            if(!sim||!sim->loadBody(document.body))throw std::runtime_error("Could not restore the saved creature body.");
+            if(auto* loco=dynamic_cast<bench::Locomotion*>(g.sim.get())) {
+                if(!loco->loadBody(document.body))throw std::runtime_error("Could not restore the saved creature body.");
+            } else if(auto* collision=dynamic_cast<bench::CollisionLab*>(g.sim.get())) {
+                if(!collision->loadScene(document.body))throw std::runtime_error("Could not restore the saved collision scene.");
+            } else throw std::runtime_error("This simulation has no place for the saved body data.");
         }
         g.say("Opened "+r.label+". Code and setup restored; ready for a new run.");
     }
