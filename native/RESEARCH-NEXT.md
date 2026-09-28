@@ -200,5 +200,5 @@ Not verified: installation of these runtimes, reproduction of results, native Wi
 
 The findings above stand. What has since been written down in the tree:
 
-- **Particle Collision Lab** (`collision2d`) is a registered template: a walled box of disks, the one-dimensional elastic oracle, a fixed 1/60 s step and four substeps, and version-1 project settings. It is not a Box2D build. Still open: vendor Box2D 3.1.1 and compile it with the workbench toolchain; fast and dense cases, timing and memory; editing beyond the stamp; a checkpoint that stores more than knobs; the optional offline pack. Jolt 3D stays a later stage.
+- **Particle Collision Lab** (`collision2d`) now builds and steps with vendored Box2D 3.1.1, denser presets, edit tools beyond stamp, and a scene checkpoint in the project body. Box2D ships in-tree (MIT), not as a separate offline pack — see PACKS.md. Jolt 3D stays a later stage.
 - **Fly actor stubs** live under `native/src/actors/` and are not shipped templates. The Windows runtime pin above is a document, not a tested install.

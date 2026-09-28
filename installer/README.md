@@ -89,3 +89,11 @@ already registered user installation. Keep the resulting QA logs as evidence.
 - [Windows atomic replacement](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-movefileexw)
 - [Child process environment blocks](https://learn.microsoft.com/en-us/windows/win32/procthread/changing-environment-variables)
 - [GCC directory and sysroot options](https://gcc.gnu.org/onlinedocs/gcc/Directory-Options.html)
+
+## Particle Collision Lab and third-party physics
+
+Box2D 3.1.1 is vendored in the source tree and linked into `workbench.exe` /
+`bench_run.exe`. It is not an Inno component. Staging a release must include
+`native/third_party/box2d` in the corresponding-source archive so the MIT notices
+and buildable sources travel with the GPL workbench. See `native/PACKS.md`.
+

@@ -18,7 +18,7 @@ The setup executable is 429,567,479 bytes. A figure of about 98 MB does not desc
 
 Source on this branch has moved past those binaries. The 2026-09-28 follow-up landed the following, and left the rest explicit.
 
-**Particle Collision Lab** (`collision2d`) is in the registry. It is a 2D box of disks with the one-dimensional elastic oracle, a fixed 1/60 s step, four substeps, and version-1 project settings. Box2D 3.1.1 is the engine named in [native/RESEARCH-NEXT.md](native/RESEARCH-NEXT.md) and is not vendored. Still to do: build Box2D 3.1.1 with the workbench toolchain; fast and dense acceptance cases, timing and memory; editing beyond the stamp; a checkpoint that stores more than knobs; the optional offline pack. Jolt for 3D stays a later stage.
+**Particle Collision Lab** (`collision2d`) steps with vendored **Box2D 3.1.1** (`native/third_party/box2d`), a fixed 1/60 s step and four substeps. The one-dimensional elastic oracle remains an analytical check. Landed on this branch: denser gas/pile presets with timing/memory checks, place/erase/kick/drag editing, and a scene checkpoint in the project body (positions, velocities, generation). Box2D is MIT and linked into the main binary, so it is not a separate installer pack; see [native/PACKS.md](native/PACKS.md). Jolt for 3D stays a later stage.
 
 **Block world: a town** replants wood. Oak leaves drop a sapling about one time in twenty as they rot, and a sapling in light of at least 9 advances one stage in seven, then grows a tree. The diamond-problem map in `voxelcraft.hpp` stays a finite stand, because the published step counts were measured on a map that does not replant itself.
 

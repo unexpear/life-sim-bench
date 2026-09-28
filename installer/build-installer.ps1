@@ -79,7 +79,7 @@ if ([IO.Path]::GetFullPath($configuredSource) -ne (Join-Path $repo 'native') -or
 }
 & cmake --build $BuildDirectory --target workbench bench_run --parallel 1
 if ($LASTEXITCODE -ne 0) { throw 'Workbench build failed.' }
-foreach ($directory in @('native','native\src','assets','templates','source')) {
+foreach ($directory in @('native','native\src','native\third_party','assets','templates','source')) {
     New-Item -ItemType Directory -Path (Join-Path $stage $directory) -Force | Out-Null
 }
 foreach ($name in @('LICENSE','LICENSING.md','THIRD_PARTY_NOTICES.md')) {
@@ -101,6 +101,15 @@ Get-ChildItem -LiteralPath $sourceRoot -Recurse -File | Where-Object { $_.Extens
     New-Item -ItemType Directory -Path (Split-Path $target) -Force | Out-Null
     Copy-Item -LiteralPath $_.FullName -Destination $target -Force
 }
+# Corresponding source for vendored Box2D (MIT), linked into the collision lab.
+$box2dSrc = Join-Path $repo 'native\third_party\box2d'
+$box2dDst = Join-Path $stage 'native\third_party\box2d'
+if (Test-Path -LiteralPath $box2dSrc) {
+    New-Item -ItemType Directory -Path $box2dDst -Force | Out-Null
+    Copy-Item -LiteralPath $box2dSrc -Destination (Join-Path $stage 'native\third_party') -Recurse -Force
+    Write-Output 'Staged native/third_party/box2d for corresponding source.'
+}
+
 Copy-Item -LiteralPath (Join-Path $repo 'plugins\example_rule.cpp') -Destination (Join-Path $stage 'assets\example_rule.cpp') -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'WELCOME.txt') -Destination (Join-Path $stage 'WELCOME.txt') -Force
 & (Join-Path $BuildDirectory 'bench_run.exe') --export-templates (Join-Path $stage 'templates')
