@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Research stub only. Not registered, not exported as a template, and not
-// part of the installer. Synthetic arenas for the stub controller in fly.hpp.
-// Not a shipped world. See native/RESEARCH-NEXT.md.
+// Synthetic arenas for the reusable fly actor (actors/fly.hpp).
+// Hosted by sims/fly_arena.hpp. Not a Brian2/FlyWire build.
 // Original 2D walking arenas. Synthetic odor/light, circular body and obstacles;
 // no wing aerodynamics, fluid solver, biomechanical legs or neural data.
 #pragma once
@@ -118,7 +117,8 @@ public:
         body.position.x+=allowed*std::cos(body.heading);body.position.y+=allowed*std::sin(body.heading);
         ++tick;
         if(light(body.position)>.5)light_time+=dt;
-        if(distance(body.position,target())<3 && !reached) {reached=true;first_arrival=seconds();}
+        // 5 mm matches the reactive controller stopping when both odor sensors saturate.
+        if(distance(body.position,target())<5 && !reached) {reached=true;first_arrival=seconds();}
         return true;
     }
 };

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Research stub only. Not registered, not exported as a template, and not
-// part of the installer. This is a hand-written sensor boundary, not a Brian2
-// brain, and it does not carry FlyWire data. See native/RESEARCH-NEXT.md.
+// Reusable fly actor contract. Hosted by sims/fly_arena.hpp (registered).
+// Hand-written sensor/controller boundary — not a Brian2 brain, and it does
+// not carry FlyWire (CC BY-NC) data. See native/RESEARCH-NEXT.md and PACKS.md.
 // Original, deliberately simplified sensor/controller boundary. No connectome.
 #pragma once
 #include <algorithm>
@@ -29,6 +29,14 @@ struct Action {
     std::uint64_t tick=0;
     double forward=0,turn=0; // 0..1 speed demand, -1..1 yaw demand
 };
+// Contract identity for hosts and save documents. Synthetic backends leave
+// dataset_hash empty; a future Brian2/FlyWire pack must fill it.
+struct Identity {
+    static constexpr unsigned contract_version = Observation::version;
+    static constexpr const char* backend = "reactive-stub";
+    static constexpr const char* body = "disk-2d-mm";
+    static constexpr const char* dataset_hash = "";
+};
 inline bool valid(const Action& a,std::uint64_t tick) {
     return a.version==Observation::version && a.tick==tick &&
         std::isfinite(a.forward)&&std::isfinite(a.turn)&&a.forward>=0&&a.forward<=1&&a.turn>=-1&&a.turn<=1;
@@ -38,6 +46,7 @@ public:
     virtual ~Controller()=default;
     virtual void reset(std::uint64_t seed)=0;
     virtual Action act(const Observation&)=0;
+    virtual const char* backend() const { return Identity::backend; }
 };
 // A transparent, hand-written baseline, not a brain reconstruction or learner.
 // It receives local sensors only: no target position, map or optimal path.
@@ -59,6 +68,7 @@ public:
         if(odor_gain>0 && std::min(o.odor[0],o.odor[1])>.99)drive=0;
         return {Observation::version,o.tick,drive,std::clamp(turn,-1.0,1.0)};
     }
+    const char* backend() const override { return Identity::backend; }
 private:
     double phase_=0,avoid_=0;
 };
