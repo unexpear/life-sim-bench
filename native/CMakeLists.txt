@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 3.20)
-project(life_sim_bench LANGUAGES CXX)
+﻿cmake_minimum_required(VERSION 3.22)
+project(life_sim_bench LANGUAGES C CXX)
 
 
 # Every target links libstdc++ statically, not just the GUI one. MSYS2 and
 # Git-for-Windows both ship a libstdc++-6.dll, and a dynamically linked binary
-# can bind to the wrong one and segfault constructing an ifstream — a failure
+# can bind to the wrong one and segfault constructing an ifstream â€” a failure
 # that appears ONLY in optimised builds and looks exactly like UB in your code.
 if(MINGW)
     set(STATIC_CXX -static -static-libgcc -static-libstdc++)
@@ -14,7 +14,30 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# ── Two targets, deliberately ────────────────────────────────────────────────
+
+# -- Box2D 3.1.1 (Particle Collision Lab) ------------------------------------
+# Vendored at native/third_party/box2d (tag v3.1.1). Built as a static library
+# with this toolchain; samples/tests from upstream are not part of the tree.
+set(BOX2D_SAMPLES OFF CACHE BOOL "" FORCE)
+set(BOX2D_BENCHMARKS OFF CACHE BOOL "" FORCE)
+set(BOX2D_DOCS OFF CACHE BOOL "" FORCE)
+set(BOX2D_PROFILE OFF CACHE BOOL "" FORCE)
+set(BOX2D_VALIDATE OFF CACHE BOOL "" FORCE)
+set(BOX2D_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+add_subdirectory(third_party/box2d EXCLUDE_FROM_ALL)
+
+# Every translation unit that pulls in registry.hpp (and therefore collision.hpp)
+# needs the Box2D symbols. Linking the static archive into all native targets
+# keeps that simple; unused members stay out of binaries that never call it.
+function(bench_link_box2d target)
+  if(TARGET ${target})
+    target_link_libraries(${target} PRIVATE box2d)
+  endif()
+endfunction()
+
+
+# â”€â”€ Two targets, deliberately â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 #
 #   bench_selftest : the rules, and proof they are right. Zero dependencies, so
 #                    it builds and runs anywhere with a C++20 compiler.
@@ -27,7 +50,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(BENCH_BUILD_APP "Build the windowed workbench (Win32). OFF = rules + self-test only." ON)
 
-# ── rules + verification (no dependencies) ───────────────────────────────────
+# â”€â”€ rules + verification (no dependencies) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 add_executable(bench_selftest src/self_test.cpp)
 target_include_directories(bench_selftest PRIVATE src)
 target_link_options(bench_selftest PRIVATE ${STATIC_CXX})
@@ -57,7 +80,7 @@ if(NOT MSVC)
 endif()
 add_test(NAME saved_simulations COMMAND bench_projects)
 
-# ── the headless viewer ──────────────────────────────────────────────────────
+# â”€â”€ the headless viewer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Renders the whole roster to a PNG with no window at all. Also means the
 # rendering core is exercised on every rule, so a sim that blows up or renders
 # black is caught by looking rather than by trusting.
@@ -69,7 +92,7 @@ target_link_options(bench_sheet PRIVATE ${STATIC_CXX})
 file(GLOB_RECURSE BENCH_HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
 set_property(TARGET bench_sheet PROPERTY LINK_DEPENDS "${BENCH_HEADERS}")
 
-# ── the stress test ──────────────────────────────────────────────────────────
+# â”€â”€ the stress test â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Drives the max-speed path exactly as the app does and asserts the limits hold:
 # bounded snapshot rate, bounded memory, and a frame loop that never wedges.
 add_executable(bench_stress src/stress_test.cpp)
@@ -147,7 +170,7 @@ if(WIN32)
     add_test(NAME plugins COMMAND bench_plugin_test "$<TARGET_FILE_DIR:example_plugin>")
 endif()
 
-# ── the dedicated runner ─────────────────────────────────────────────────────
+# â”€â”€ the dedicated runner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # One simulation, the whole machine: no window, no timeline, no frame clock.
 # The workbench's Dedicated run hands its current setup to this, and it stands
 # alone for runs too big or too long to watch. See src/runner.hpp.
@@ -185,7 +208,7 @@ add_test(NAME runner_cli_refuses COMMAND bench_run nosuch --steps 1)
 set_tests_properties(runner_cli_refuses PROPERTIES
                      PASS_REGULAR_EXPRESSION "no simulation called 'nosuch'")
 
-# ── stepping off the window's thread ─────────────────────────────────────────
+# â”€â”€ stepping off the window's thread â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # The worker's contract, and the property the window relies on: every library
 # sim steps to the same world whichever thread steps it. See src/sim_worker.hpp.
 add_executable(bench_worker_test src/worker_test.cpp)
@@ -196,7 +219,7 @@ if(NOT MSVC)
 endif()
 add_test(NAME worker COMMAND bench_worker_test)
 
-# ── the application icon, generated by the bench itself ─────────────────────
+# â”€â”€ the application icon, generated by the bench itself â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # A glider, four generations into a real Conway simulation, written as a
 # multi-resolution .ico with PNG payloads. No third-party asset, so no licence
 # to track: the app draws things for a living, and its icon is its own output.
@@ -204,14 +227,14 @@ add_executable(bench_make_icon src/make_icon.cpp)
 target_include_directories(bench_make_icon PRIVATE src)
 target_link_options(bench_make_icon PRIVATE ${STATIC_CXX})
 
-# ── the sweep tool ───────────────────────────────────────────────────────────
+# â”€â”€ the sweep tool â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Runs one sim across a range of one or two knobs and writes a grid PNG plus a
 # metric table. Turns "what does this parameter do" into a picture and numbers.
 add_executable(bench_sweep src/sweep.cpp)
 target_include_directories(bench_sweep PRIVATE src)
 target_link_options(bench_sweep PRIVATE ${STATIC_CXX})
 
-# ── the workbench ────────────────────────────────────────────────────────────
+# â”€â”€ the workbench â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if(NOT BENCH_BUILD_APP)
     return()
 endif()
@@ -255,3 +278,13 @@ else()
     # -mwindows: no console window. This is a desktop app, not a terminal tool.
     target_link_options(workbench PRIVATE -municode -mwindows -static -static-libgcc -static-libstdc++)
 endif()
+
+# Box2D for every target that can include the collision lab via the registry.
+foreach(_bench_tgt bench_selftest bench_rendering bench_projects bench_sheet bench_stress
+                   test_biomes test_craft test_fluids test_light test_mobs test_planet test_traffic test_traffic_idm
+                   bench_workflows bench_locomotion bench_sorting bench_collision bench_sapling bench_fly
+                   example_plugin bench_plugin_test bench_run bench_rulestrings bench_runner_test
+                   bench_worker_test bench_make_icon bench_sweep workbench bench_ui_shot)
+  bench_link_box2d(${_bench_tgt})
+endforeach()
+

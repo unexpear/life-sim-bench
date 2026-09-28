@@ -39,6 +39,9 @@
 !/native/RULE-LAB.md
 !/native/UI-UX-REVIEW.md
 !/native/RESEARCH-NEXT.md
+!/native/third_party/
+!/native/third_party/**
+!/native/PACKS.md
 *.exe
 *.dll
 *.o

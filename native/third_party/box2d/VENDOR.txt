@@ -1,0 +1,9 @@
+Box2D 3.1.1
+Upstream tag: v3.1.1
+Pinned commit: 8c661469c9507d3ad6fbd2fea3f1aa71669c2fe3
+Source: https://github.com/erincatto/box2d/releases/tag/v3.1.1
+License: MIT (see LICENSE)
+Vendored for Life-sim Workbench Particle Collision Lab.
+Samples, tests, benchmarks, docs and extern deps were omitted; include/, src/,
+and the upstream CMakeLists are enough to build the static library with the
+workbench MinGW UCRT64 toolchain.

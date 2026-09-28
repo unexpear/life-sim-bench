@@ -48,8 +48,9 @@ files; it does not import old binaries, old sprite copies or unknown Git history
 Scientific formulas, published mechanics and algorithm names are distinguished
 from copied expressive code or artwork. Citations remain in simulation guides.
 
-Fly-brain models, connectomes, Box2D, Jolt and MuJoCo/FlyGym are researched but
-**not included** in this distribution. Before adding a pack, record the exact
+Box2D 3.1.1 (MIT) is vendored under `native/third_party/box2d` and linked into the
+Particle Collision Lab. Fly-brain models, connectomes, Jolt and MuJoCo/FlyGym remain
+researched but **not included**. Before adding a further pack, record the exact
 version and review its code, data, meshes, weights and dependency terms separately.
 In particular, free pricing does not remove FlyWire's noncommercial restriction.
 Do not label restricted datasets as GPL or assume code licensing covers them.

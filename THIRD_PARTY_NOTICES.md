@@ -60,3 +60,12 @@ sheet, music, emulator, fly connectome or downloaded pattern collection is bundl
 Simulation panels retain citations to research/mechanics used as references.
 Those citations do not claim ownership of the papers or grant rights to their
 figures/code. The [audit](LICENSE-AUDIT.md) describes the reviewed distribution.
+
+## Box2D
+
+Particle Collision Lab links [Box2D 3.1.1](https://github.com/erincatto/box2d/releases/tag/v3.1.1)
+(commit `8c661469c9507d3ad6fbd2fea3f1aa71669c2fe3`), vendored under
+`native/third_party/box2d`. Box2D is MIT-licensed. Copyright (c) 2022 Erin Catto.
+The upstream notice is in [licenses/Box2D.txt](licenses/Box2D.txt) and
+`native/third_party/box2d/LICENSE`.
+
