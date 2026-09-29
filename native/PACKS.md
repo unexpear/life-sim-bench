@@ -38,8 +38,8 @@ connectivity SHA-256 is recorded in the manifest as dataset_hash.
 
 **Hard rule:** do not copy this pack into installer/ staging, Inno components,
 or main shipped templates. Empty-bench installs must run without it. The
-registered lyarena template uses synthetic sensors only; when the pack is
-present, FlyArena::subtitle and ly::pack::dataset_hash() reflect the local
+registered flyarena template uses synthetic sensors only; when the pack is
+present, FlyArena::subtitle and fly::pack::dataset_hash() reflect the local
 hash for Identity accounting.
 
 ## Brian2 / Shiu Windows runtime (local optional)
@@ -50,25 +50,24 @@ ative/scripts/setup_brian2_windows.ps1. Docs: [BRIAN2-WINDOWS.md](BRIAN2-WINDOWS
 Override interpreter with LIFESIM_BRIAN2_PYTHON. Cython codegen needs MSVC;
 numpy codegen works without it.
 
-## Particle Lab 3D (Jolt) — scaffolding
+## Particle Lab 3D (Jolt)
 
-Pin and stubs live under 
-ative/third_party/jolt/ (see PIN.md). Default build
-links the **stub only** (jolt_stub INTERFACE). Optional fetch:
-
-ative/scripts/fetch_jolt_pin.ps1. CMake option BENCH_WITH_JOLT stays OFF until
-a measured MinGW/MSVC integration lands. Body-boundary notes:
-
-ative/src/physics/jolt_body_notes.hpp (Jolt spheres vs FlyGym/MuJoCo fly —
+Pin notes and analytic SphereWorld live under `native/third_party/jolt/`
+(see PIN.md). Default build uses **analytic sphere/floor contacts** via
+`jolt_stub` (no upstream Jolt compile). Optional fetch:
+`native/scripts/fetch_jolt_pin.ps1` → gitignored `JoltPhysics/`. CMake
+`-DBENCH_WITH_JOLT=ON` links the pin when present. Body-boundary notes:
+`native/src/physics/jolt_body_notes.hpp` (Jolt spheres vs FlyGym/MuJoCo fly —
 **no shared contacts**).
 
 ## Later packs (summary)
 
 | Pack | Why separate | Status |
 | --- | --- | --- |
-| Particle Lab 3D (Jolt) | Larger engine, separate validation | Stub + pin in-tree; full link later |
-| Fly Arena (reactive stub) | Synthetic only; no NC data | In core via lyarena registry entry |
-| Fly Brain runtime/data | FlyWire CC BY-NC 4.0; must not enter the main GPL installer | Local scripts + userdata pack/venv |
+| Particle Lab 3D (Jolt) | Larger engine, separate validation | Analytic SphereWorld default; optional full link |
+| Fly Arena (reactive stub) | Synthetic only; no NC data | In core via flyarena registry entry |
+| Fly Brain runtime/data | FlyWire CC BY-NC 4.0; must not enter the main GPL installer | Local scripts + userdata pack/venv + embodied bridge |
+| Eon / DOOMFLY | Windows DLL / WSL blockers | Documented stubs only — see EON-DOOMFLY-WINDOWS.md |
 | Detailed Fly Body (FlyGym/MuJoCo) | Large assets; Windows route unverified | Notes only; separate world from Jolt |
 
 When a future pack is added: pin version and hash, add notices under licenses/,

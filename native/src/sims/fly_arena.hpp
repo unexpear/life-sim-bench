@@ -14,6 +14,7 @@
 #include "../actors/fly_pack.hpp"
 #include "../actors/fly_brian2.hpp"
 #include <algorithm>
+#include <cstdlib>
 #include <cmath>
 #include <memory>
 #include <sstream>
@@ -33,9 +34,9 @@ public:
             "2026",
             "Life-sim Workbench research stub; not a connectome model",
             "native/RESEARCH-NEXT.md, Fly brain — first embodiment. Controller: "
-            "bench::fly::ReactiveController. Optional local FlyWire pack and "
-            "Brian2 venv are discovered when present (see fly_pack.hpp); neither "
-            "is required to run this synthetic arena.",
+            "Default: bench::fly::ReactiveController. Optional Brian2 bridge "
+            "(fly_brian2.hpp) when LIFESIM_BRIAN2_PYTHON / userdata venv present. "
+            "FlyWire pack discovery is separate (fly_pack.hpp); neither is required.",
             Replication::No,
             "No. A single disk walks an arena. Nothing copies itself.",
             "A millimetre-scale walking disk with left/right odor and light sensors, "
@@ -58,6 +59,10 @@ public:
             {"scene", "scene", 0.f, 3.f, 0.f, 1.f,
              {"food plume", "obstacles", "light patch", "wind plume"}, true,
              "Which synthetic arena to build. Changing it starts that scene over."},
+            {"controller", "controller", 0.f, 1.f, 0.f, 1.f,
+             {"reactive", "brian2"}, true,
+             "reactive = hand-written baseline. brian2 = Observation/Action bridge "
+             "to the local Brian2 venv (falls back to reactive if unavailable)."},
             {"seed", "run seed", 1.f, 40.f, 1.f, 1.f, {}, true,
              "Which independent layout and controller phase this is."},
             // Rock count only shapes the obstacles scene.
@@ -81,7 +86,7 @@ public:
             {"rate", "steps per frame", 1.f, 12.f, 4.f, 1.f, {}, false,
              "Display rate only.", true},
         };
-        brain_ = std::make_unique<fly::ReactiveController>();
+        select_controller(preferred_controller_kind());
         reset();
     }
 
@@ -91,7 +96,9 @@ public:
     std::uint64_t generation() const override { return world_.tick; }
     std::vector<Knob>& knobs() override { return knobs_; }
     std::string subtitle() const override {
-        std::string s = std::string(fly::Identity::backend) + " / " + fly::Identity::body;
+        std::string s = std::string(brain_ ? brain_->backend() : fly::Identity::backend);
+        s += " / ";
+        s += fly::Identity::body;
         const auto h = fly::pack::dataset_hash();
         if (!h.empty()) s += " / " + fly::pack::identity_label();
         else if (fly::brian2ref::runtime_present()) s += " / brian2-venv";
@@ -100,7 +107,10 @@ public:
 
     void on_knob(const std::string& key, float v) override {
         for (auto& k : knobs_) if (k.key == key) k.value = k.quantised(v);
-        if (key == "scene" || key == "seed" || key == "obstacles" || key == "speed"
+        if (key == "controller") {
+            select_controller(int(knob("controller") + 0.5f));
+            reset();
+        } else if (key == "scene" || key == "seed" || key == "obstacles" || key == "speed"
             || key == "seek_light")
             reset();
         else if (key == "odor_gain" || key == "light_gain")
@@ -162,7 +172,10 @@ public:
 
     [[nodiscard]] const fly::World& world() const { return world_; }
     fly::World& world() { return world_; }
-    [[nodiscard]] fly::ReactiveController& brain() { return *brain_; }
+    [[nodiscard]] fly::Controller& brain() { return *brain_; }
+    [[nodiscard]] const char* controller_backend() const {
+        return brain_ ? brain_->backend() : fly::Identity::backend;
+    }
 
     std::string saveScene() const {
         std::ostringstream out;
@@ -177,8 +190,9 @@ public:
             << "spread " << world_.config.spread << "\n"
             << "wind " << world_.config.wind << "\n"
             << "seek_light " << (world_.config.seek_light ? 1 : 0) << "\n"
-            << "odor_gain " << brain_->odor_gain << "\n"
-            << "light_gain " << brain_->light_gain << "\n"
+            << "odor_gain " << odor_gain_ << "\n"
+            << "light_gain " << light_gain_ << "\n"
+            << "controller " << controller_kind_ << "\n"
             << "tick " << world_.tick << "\n"
             << "x " << world_.body.position.x << "\n"
             << "y " << world_.body.position.y << "\n"
@@ -199,7 +213,7 @@ public:
         std::string tag; int version = 0;
         if (!(in >> tag >> version) || tag != "flyarena-scene" || version != 1) return false;
         fly::Config c;
-        int scene_i = 0, seek = 1, reached = 0;
+        int scene_i = 0, seek = 1, reached = 0, controller_kind_in = 0;
         double odor_gain = 1, light_gain = 0;
         double x = 12, y = 30, heading = 0, travelled = 0, first = -1;
         std::uint64_t tick = 0, contacts = 0;
@@ -218,6 +232,7 @@ public:
             else if (key == "seek_light") { if (!(in >> seek)) return false; c.seek_light = seek != 0; }
             else if (key == "odor_gain") { if (!(in >> odor_gain)) return false; }
             else if (key == "light_gain") { if (!(in >> light_gain)) return false; }
+            else if (key == "controller") { if (!(in >> controller_kind_in)) return false; }
             else if (key == "tick") { if (!(in >> tick)) return false; }
             else if (key == "x") { if (!(in >> x)) return false; }
             else if (key == "y") { if (!(in >> y)) return false; }
@@ -259,7 +274,11 @@ public:
             else if (k.key == "seek_light") k.value = c.seek_light ? 1.f : 0.f;
             else if (k.key == "odor_gain") k.value = float(odor_gain);
             else if (k.key == "light_gain") k.value = float(light_gain);
+            else if (k.key == "controller") k.value = float(controller_kind_in);
         }
+        odor_gain_ = odor_gain;
+        light_gain_ = light_gain;
+        select_controller(controller_kind_in);
         brain_->reset(std::uint64_t(c.seed));
         apply_gains();
         publish();
@@ -273,8 +292,37 @@ private:
     }
 
     void apply_gains() {
-        brain_->odor_gain = double(knob("odor_gain"));
-        brain_->light_gain = double(knob("light_gain"));
+        odor_gain_ = double(knob("odor_gain"));
+        light_gain_ = double(knob("light_gain"));
+        if (auto* r = dynamic_cast<fly::ReactiveController*>(brain_.get())) {
+            r->odor_gain = odor_gain_;
+            r->light_gain = light_gain_;
+        } else if (auto* b = dynamic_cast<fly::brian2ref::Brian2Controller*>(brain_.get())) {
+            b->odor_gain = odor_gain_;
+            b->light_gain = light_gain_;
+        }
+    }
+
+    static int preferred_controller_kind() {
+        if (const char* e = std::getenv("LIFESIM_FLY_CONTROLLER"); e && *e) {
+            const std::string v(e);
+            if (v == "brian2" || v == "shiu-brian2" || v == "1") return 1;
+        }
+        return 0;
+    }
+
+    void select_controller(int kind) {
+        controller_kind_ = kind == 1 ? 1 : 0;
+        if (controller_kind_ == 1) {
+            if (auto b = fly::brian2ref::try_make_brian2()) {
+                brain_ = std::move(b);
+                for (auto& k : knobs_) if (k.key == "controller") k.value = 1.f;
+                return;
+            }
+            controller_kind_ = 0;
+        }
+        brain_ = std::make_unique<fly::ReactiveController>();
+        for (auto& k : knobs_) if (k.key == "controller") k.value = 0.f;
     }
 
     void disk(int cx, int cy, int rad, std::uint8_t v) {
@@ -331,7 +379,9 @@ private:
     std::vector<Knob> knobs_;
     Field view_;
     fly::World world_;
-    std::unique_ptr<fly::ReactiveController> brain_;
+    std::unique_ptr<fly::Controller> brain_;
+    int controller_kind_ = 0;
+    double odor_gain_ = 1, light_gain_ = 0;
 };
 
 inline SimPtr make_fly_arena() { return std::make_unique<FlyArena>(); }

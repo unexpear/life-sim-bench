@@ -43,6 +43,7 @@
 !/native/third_party/**
 !/native/PACKS.md
 !/native/BRIAN2-WINDOWS.md
+!/native/EON-DOOMFLY-WINDOWS.md
 !/native/scripts/
 !/native/scripts/**
 *.exe

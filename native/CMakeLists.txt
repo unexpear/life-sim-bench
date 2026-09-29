@@ -27,9 +27,10 @@ set(BOX2D_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 add_subdirectory(third_party/box2d EXCLUDE_FROM_ALL)
 
-# -- Jolt 5.6.0 scaffolding (Particle Lab 3D) --------------------------------
-# Stub INTERFACE only by default. Full engine fetch is optional; see
-# third_party/jolt/PIN.md. Do not confuse with FlyGym/MuJoCo (separate world).
+# -- Jolt 5.6.0 (Particle Lab 3D) --------------------------------------------
+# Default: analytic SphereWorld via jolt_stub INTERFACE (no upstream compile).
+# Optional: -DBENCH_WITH_JOLT=ON after native/scripts/fetch_jolt_pin.ps1.
+# Do not confuse with FlyGym/MuJoCo (separate world; no shared contacts).
 add_subdirectory(third_party/jolt EXCLUDE_FROM_ALL)
 
 # Every translation unit that pulls in registry.hpp (and therefore collision.hpp)
@@ -165,7 +166,11 @@ add_test(NAME fly COMMAND bench_fly)
 
 add_executable(bench_jolt_stub src/jolt_stub_test.cpp)
 target_include_directories(bench_jolt_stub PRIVATE src)
-target_link_libraries(bench_jolt_stub PRIVATE jolt_stub)
+if(TARGET bench_jolt)
+    target_link_libraries(bench_jolt_stub PRIVATE bench_jolt)
+else()
+    target_link_libraries(bench_jolt_stub PRIVATE jolt_stub)
+endif()
 target_link_options(bench_jolt_stub PRIVATE ${STATIC_CXX})
 if(NOT MSVC)
     target_compile_options(bench_jolt_stub PRIVATE -Wall -Wextra)

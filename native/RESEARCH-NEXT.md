@@ -200,8 +200,9 @@ Not verified: installation of these runtimes, reproduction of results, native Wi
 
 The findings above stand. What has since been written down in the tree:
 
-- **Particle Collision Lab** (`collision2d`) now builds and steps with vendored Box2D 3.1.1, denser presets, edit tools beyond stamp, and a scene checkpoint in the project body. Box2D ships in-tree (MIT), not as a separate offline pack — see PACKS.md. Jolt 3D stays a later stage for a full link; stub + pin are present (below).
-- **Fly Arena** (`flyarena`) is registered and hosts the reusable actor headers under `native/src/actors/` with the synthetic `ReactiveController`.
-- **Brian2 / Shiu Windows runtime** — setup script and docs under `native/scripts/` and `native/BRIAN2-WINDOWS.md`. A portable venv at `userdata/brian2-venv` (gitignored) was verified importable on this checkout; Cython codegen needs MSVC (`vcvars64.bat`), not MinGW alone. `fly_brian2.hpp` locates the interpreter for a future bounded subprocess; it does not replace `ReactiveController`.
-- **FlyWire local optional pack** — `userdata/packs/flywire-nc/` (CC BY-NC 4.0, gitignored) with Shiu `Connectivity_783.parquet` / `Completeness_783.csv`, `MANIFEST.json` `dataset_hash`, and `fly_pack.hpp` discovery. Never for the GPL installer.
-- **Jolt / FlyGym groundwork** — `native/third_party/jolt/PIN.md` (v5.6.0), CMake stub, compileable `SphereWorld` scaffolding, and `jolt_body_notes.hpp` stating MuJoCo≠Jolt shared contacts remain blocked. Optional `fetch_jolt_pin.ps1` downloads upstream sources without enabling `BENCH_WITH_JOLT` by default.
+- **Particle Collision Lab** (`collision2d`) now builds and steps with vendored Box2D 3.1.1, denser presets, edit tools beyond stamp, and a scene checkpoint in the project body. Box2D ships in-tree (MIT), not as a separate offline pack — see PACKS.md.
+- **Fly Arena** (`flyarena`) hosts the reusable actor headers under `native/src/actors/` with default `ReactiveController`, plus an optional **Brian2 Observation/Action bridge** (`Brian2Controller`, `brian2_controller_bridge.py`) selectable by knob / `LIFESIM_FLY_CONTROLLER`.
+- **Brian2 / Shiu Windows runtime** — setup script and docs under `native/scripts/` and `native/BRIAN2-WINDOWS.md`. Portable venv at `userdata/brian2-venv` (gitignored). Cython codegen needs MSVC; numpy codegen works without it.
+- **FlyWire local optional pack** — `userdata/packs/flywire-nc/` (CC BY-NC 4.0, gitignored). Never for the GPL installer.
+- **Eon / DOOMFLY** — Windows blockers documented (`EON-DOOMFLY-WINDOWS.md`); compileable host stubs only. DOOMFLY has no Windows DLL branch in the pinned `build_kernel.py`.
+- **Jolt / FlyGym** — pin fetch script + local `JoltPhysics/` (gitignored). Default analytic `SphereWorld` with sphere/floor contacts. Optional `-DBENCH_WITH_JOLT=ON` CMake link. `jolt_and_mujoco_share_contacts` remains false.

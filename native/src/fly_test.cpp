@@ -4,8 +4,11 @@
 #include "sims/fly_arena.hpp"
 #include "actors/fly_pack.hpp"
 #include "actors/fly_brian2.hpp"
+#include "actors/fly_eon_stub.hpp"
+#include "actors/fly_doomfly_stub.hpp"
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <string>
 
 int main() {
@@ -144,6 +147,71 @@ int main() {
               "odor seeking ends closer to the source than the same walk with odor_gain 0");
     }
 
+
+
+    // Embodied Brian2 Observation/Action bridge (optional local venv).
+    {
+        using namespace bench::fly;
+        if (brian2ref::runtime_present()) {
+            brian2ref::Brian2Controller brain;
+            brain.timeout_ms = 8000;
+            World world(Scene::Food);
+            world.reset(Config{});
+            brain.reset(1);
+            bool ok = true;
+            double travelled0 = world.travelled;
+            for (int i = 0; i < 12; ++i) {
+                const auto o = world.observe();
+                const auto a = brain.act(o);
+                if (!valid(a, o.tick) || !world.advance(a)) { ok = false; break; }
+            }
+            check(ok && world.tick >= 12 && world.travelled >= travelled0,
+                  "Brian2Controller drives Food scene Observation/Action for 12 steps");
+            check(std::string(brain.backend()) == brian2ref::kBackend,
+                  "Brian2Controller reports shiu-brian2 backend");
+
+            auto sim = bench::make_fly_arena();
+            auto* arena = static_cast<bench::FlyArena*>(sim.get());
+            // Force brian2 via knob when runtime exists.
+            for (auto& k : arena->knobs()) if (k.key == "controller") {
+                arena->on_knob("controller", 1.f);
+                break;
+            }
+            const auto before = arena->world().tick;
+            for (int i = 0; i < 8; ++i) sim->step();
+            check(arena->world().tick > before,
+                  "FlyArena steps after selecting brian2 controller knob");
+            check(std::string(arena->controller_backend()).find("brian2") != std::string::npos
+                  || std::string(arena->controller_backend()) == Identity::backend,
+                  "FlyArena controller backend is brian2 or honest reactive fallback");
+        } else {
+            check(!brian2ref::try_make_brian2(),
+                  "without Brian2 venv+bridge, try_make_brian2 returns empty");
+            std::printf("note  Brian2 bridge skipped (venv/script missing)\n");
+        }
+    }
+
+    // Eon / DOOMFLY Windows stubs — compileable, not ready.
+    {
+        using namespace bench::fly;
+        eonstub::StubController eon;
+        doomflystub::StubController doom;
+        World w(Scene::Food);
+        w.reset(Config{});
+        eon.reset(1); doom.reset(1);
+        const auto o = w.observe();
+        const auto ae = eon.act(o);
+        const auto ad = doom.act(o);
+        check(valid(ae, o.tick) && ae.forward == 0 && ae.turn == 0,
+              "Eon stub returns a valid zero action (runtime not ready)");
+        check(valid(ad, o.tick) && ad.forward == 0,
+              "DOOMFLY stub returns a valid zero action (no Windows DLL)");
+        check(!eonstub::StubController::windows_runtime_ready
+              && !doomflystub::StubController::windows_runtime_ready
+              && !doomflystub::WindowsBlocker::has_dll_branch,
+              "Eon/DOOMFLY stubs advertise Windows blockers honestly");
+        std::printf("note  DOOMFLY blocker: %s\n", doomflystub::WindowsBlocker::builder);
+    }
 
     // Optional local FlyWire pack + Brian2 venv discovery (do not require them).
     {

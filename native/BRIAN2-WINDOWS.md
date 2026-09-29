@@ -21,6 +21,7 @@ import. The venv is **not** committed.
 | Import + numpy codegen | `userdata\brian2-venv\Scripts\python.exe native\scripts\verify_brian2.py --numpy-only` |
 | Cython codegen (MSVC) | Open a shell after `vcvars64.bat`, then `...\python.exe native\scripts\verify_brian2.py --cython` |
 | Pack + tiny network | `...\python.exe native\scripts\shiu_reference_smoke.py` |
+| Observation/Action bridge | `...\python.exe native\scripts\brian2_controller_bridge.py` (JSON lines on stdin) |
 
 ### Compiler reality (2026-09-28)
 
@@ -37,12 +38,17 @@ import. The venv is **not** committed.
 | --- | --- |
 | `userdata/brian2-venv/Scripts/python.exe` | Default interpreter |
 | `LIFESIM_BRIAN2_PYTHON` | Override interpreter |
+| `LIFESIM_BRIAN2_BRIDGE` | Override bridge script path |
+| `LIFESIM_FLY_CONTROLLER=brian2` | Prefer Brian2Controller in Fly Arena |
 | `native/scripts/shiu_reference_smoke.py` | Bounded smoke (pack probe + tiny network) |
-| `native/src/actors/fly_brian2.hpp` | Locates the venv; documents subprocess smoke command |
+| `native/scripts/brian2_controller_bridge.py` | Observation/Action JSON-line bridge |
+| `native/src/actors/fly_brian2.hpp` | `Brian2Controller` + venv discovery |
 
-The registered **Fly Arena** (`flyarena`) still steps with `ReactiveController`.
-`fly_brian2.hpp` does not replace it; it is the wiring surface for a future
-bounded controller process (see RESEARCH-NEXT actor contract).
+The registered **Fly Arena** (`flyarena`) defaults to `ReactiveController`.
+Selecting controller=`brian2` (knob) or `LIFESIM_FLY_CONTROLLER=brian2` uses
+`Brian2Controller` when the venv and bridge script exist; otherwise it falls
+back to reactive. The bridge mapping is engineered rate-coded LIF — not a full
+Shiu connectome reproduction.
 
 FlyWire connectivity for the Shiu model is a **separate optional pack** —
-[PACKS.md](PACKS.md).
+[PACKS.md](PACKS.md). Eon/DOOMFLY Windows status: [EON-DOOMFLY-WINDOWS.md](EON-DOOMFLY-WINDOWS.md).
