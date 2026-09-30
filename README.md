@@ -1,6 +1,6 @@
 # Life-sim Workbench
 
-A native Windows workbench with 38 optional simulation templates and support for your own simulations. Choose a template or saved simulation from the searchable library, then work with that one world in a dedicated workspace.
+A native Windows workbench with 60 optional simulation templates and support for your own simulations. Choose a template or saved simulation from the searchable library, then work with that one world in a dedicated workspace.
 
 Free and open source under **GPL-3.0-or-later**. See [licensing](LICENSING.md),
 [third-party credits](THIRD_PARTY_NOTICES.md) and the [license audit](LICENSE-AUDIT.md).
@@ -11,7 +11,7 @@ Build the installer using [these instructions](installer/README.md); its output 
 
 For the development checkout:
 
-Build the app first (see below), then run `native/build/workbench.exe`. The convenience **Life-sim Workbench.bat** launcher also accepts a build copied to `native/workbench.exe`. Search or filter the library, then open a simulation. It opens paused so you can configure it first. **Library / F4** returns to the collection; **Return to workspace** keeps the current world. Opening another entry starts a new run and releases the previous world and history.
+Build the app first (see below), then run `native/build/workbench.exe`. The convenience **Life-sim Workbench.bat** launcher uses that build when it exists, and otherwise the copy at `native/workbench.exe`. Search or filter the library, then open a simulation. It opens paused so you can configure it first. **Library / F4** returns to the collection; **Return to workspace** keeps the current world. Opening another entry starts a new run and releases the previous world and history.
 
 The library reads metadata without constructing simulations. There is one active simulation instance per app process.
 
@@ -38,7 +38,7 @@ Installed copies keep saved simulations under `%LOCALAPPDATA%\LifeSimWorkbench\S
 
 Open **Rule lab · custom cellular automata**, or choose **Create simulation → Rule-based simulation (no coding)** even on an empty bench. Paste or edit B/S, Generations (2–256 states), Hensel rules such as `B2-a/S12`, or four/six-neighbour rules with `V`/`H` suffixes. The editor validates drafts and offers examples, selection, paste, undo, Apply and Cancel. Applying retains your world settings; saves and dedicated runs use the applied rule. See the [rulestring guide](native/RULE-LAB.md).
 
-Completed source research for a reusable fly-brain actor, its own simulation, and 2D/3D particle collisions is in [Simulation research brief](native/RESEARCH-NEXT.md). It compares models and physics engines, checks data licenses and Windows constraints, and defines save/installer requirements. The first collision template is an in-tree disk world; Box2D is not linked. Fly-brain runtimes are pinned there and are not installed. Headers under `native/src/actors/` are research stubs, not templates.
+Completed source research for a reusable fly-brain actor, its own simulation, and 2D/3D particle collisions is in [Simulation research brief](native/RESEARCH-NEXT.md). Particle Collision Lab steps with vendored Box2D 3.1.1, linked into the workbench. Fly Arena is a registered template. The optional Brian2 runtime and FlyWire pack stay on this machine and are not part of the installer.
 
 ## Creature evolution
 

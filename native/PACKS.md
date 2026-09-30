@@ -6,15 +6,15 @@ the pattern for optional content.
 
 ## Particle Collision Lab (2D)
 
-Box2D 3.1.1 is MIT-licensed and vendored under 
-ative/third_party/box2d. It is
+Box2D 3.1.1 is MIT-licensed and vendored under
+`native/third_party/box2d`. It is
 compiled into the workbench and dedicated runner, so the collision template does
 **not** need a separate offline pack. An empty-bench install still runs; choosing
 the collision2d template uses the linked engine.
 
 Build note: configure the native tree with CMake 3.22+ and the MinGW UCRT64
-toolchain used for the rest of the bench. dd_subdirectory(third_party/box2d)
-builds a static ox2d library; samples and upstream tests are not required.
+toolchain used for the rest of the bench. `add_subdirectory(third_party/box2d)`
+builds a static `box2d` library; samples and upstream tests are not required.
 
 ## FlyWire NC (local optional — never in the installer)
 
@@ -25,11 +25,9 @@ relicense this data.
 | Item | Location |
 | --- | --- |
 | Local pack (gitignored) | userdata/packs/flywire-nc/ |
-| Fetch script | 
-ative/scripts/fetch_flywire_nc.ps1 |
+| Fetch script | `native/scripts/fetch_flywire_nc.ps1` |
 | Manifest / dataset_hash | userdata/packs/flywire-nc/MANIFEST.json |
-| Discovery (C++) | 
-ative/src/actors/fly_pack.hpp |
+| Discovery (C++) | `native/src/actors/fly_pack.hpp` |
 | Env override | LIFESIM_FLYWIRE_PACK = absolute pack directory |
 
 Contents fetched for the Shiu reference: Connectivity_783.parquet,
@@ -45,8 +43,7 @@ hash for Identity accounting.
 ## Brian2 / Shiu Windows runtime (local optional)
 
 Portable venv under userdata/brian2-venv/ (gitignored). Setup:
-
-ative/scripts/setup_brian2_windows.ps1. Docs: [BRIAN2-WINDOWS.md](BRIAN2-WINDOWS.md).
+`native/scripts/setup_brian2_windows.ps1`. Docs: [BRIAN2-WINDOWS.md](BRIAN2-WINDOWS.md).
 Override interpreter with LIFESIM_BRIAN2_PYTHON. Cython codegen needs MSVC;
 numpy codegen works without it.
 

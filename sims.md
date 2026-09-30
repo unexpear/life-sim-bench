@@ -1,6 +1,6 @@
 # The roster
 
-The desktop library now contains 39 simulations. The notes below cover the original collection, the movement lab and sorting labs; [the registry](native/src/registry.hpp) lists every current entry. Each simulation's in-app Guide states its provenance, approximations and replication verdict.
+The desktop library now contains 60 simulations. The notes below cover the original collection, the movement lab and sorting labs; [the registry](native/src/registry.hpp) lists every current entry. Each simulation's in-app Guide states its provenance, approximations and replication verdict.
 
 ## Sorting
 
@@ -73,6 +73,27 @@ Frozen at both ends, alive strictly between. A perfect world and a dead one are 
 | ○ | **Boids** | 1987 | Reynolds, SIGGRAPH '87. Pure phenotype — no bird has a description of itself to pass on. |
 | ○ | **Particle Life** | 2010s | Ventrella's *Clusters*, popularised by CodeParade. **Self-organises; does not replicate**, whatever the internet says. The attraction matrix is copied by whoever runs the simulation, never by the particles. |
 | ○ | **Particle Collision Lab** | 2026 | Disks in a walled box, with the one-dimensional elastic oracle. Steps with vendored Box2D 3.1.1. Disks bounce; they do not copy themselves. |
+| ○ | **Ball grows into the circle** | 2026 | Grows on every bounce until it meets the ring. |
+| ○ | **Blocks fall toward the center** | 2026 | Rings of squares knocked loose from the outside in, then stacked. |
+| ○ | **Bowl closes as it fills** | 2026 | Capsules pour in and the ring shrinks with the count. |
+| ○ | **Trails fill the circle** | 2026 | A ball under gravity paints a trail until the disc is covered. |
+| ○ | **Spiral speeds to the center** | 2026 | An inward spiral that accelerates until it reaches the middle. |
+| ○ | **Water balls on a spiral** | 2026 | Each fall off a sawtooth spiral adds one ball to the pool. |
+| ○ | **Which column fills first** | 2026 | Balls fall through pegs into thirteen racing columns. |
+| ○ | **Every bounce adds a side** | 2026 | A triangle gains one side per bounce until 48 sides make a circle. |
+| ○ | **The square grows on each bounce** | 2026 | The bouncing square gets larger and leaves its outline behind. |
+| ○ | **Dots join the side they touch** | 2026 | Two movers claim any dot they touch. |
+| ○ | **Shattering glass speeds the ball** | 2026 | Each broken tile adds speed. |
+| ○ | **Lands on every beat** | 2026 | The ball hops note to note; a taller note jumps higher. |
+| ○ | **Walls close in on each bounce** | 2026 | The square frame steps inward on every bounce. |
+| ○ | **One ball, mirrored** | 2026 | A single bounce path, copied around the circle. |
+| ○ | **Each escape spawns three balls** | 2026 | A ball that leaves through the gap is replaced by three. |
+| ○ | **Sand pour** | 2026 | Grains fall from a spout and pile. Stepped live. |
+| ○ | **Sand hourglass** | 2026 | Sand drains through a neck from the upper bulb. |
+| ○ | **Linked sand ball** | 2026 | Neighbour links hold a ball of grains until the links stretch and break. |
+| ○ | **Block shredder** | 2026 | Blocks fall into moving teeth and come out as colored sand. |
+| ○ | **Block press** | 2026 | A plate crushes a block; the crumbs spill out the sides. |
+| ○ | **Roller mill** | 2026 | Blocks drop through two rollers and fall out as sand. |
 | ○ | **Fly Arena (reactive stub)** | 2026 | Millimetre walking disk with synthetic odor/light/clearance sensors and a hand-written reactive controller. First embodiment of the fly actor contract; not a connectome and not FlyWire data. |
 | ● | **Primordial Particle System** | 2016 | Schmickl, Stefanec & Crailsheim, *Sci Rep* 6:37969. The only continuous system here that earns a Yes: structures condense from a uniform gas, grow, and divide. |
 

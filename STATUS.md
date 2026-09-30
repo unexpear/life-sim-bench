@@ -31,3 +31,9 @@ Source on this branch has moved past those binaries. The 2026-09-28 follow-ups l
 **Eon / DOOMFLY** — largest honest Windows progress: documented blockers in `native/EON-DOOMFLY-WINDOWS.md`; compileable host stubs `fly_eon_stub.hpp` / `fly_doomfly_stub.hpp`. DOOMFLY `build_kernel.py` has no Windows `.dll` branch (`.dylib`/`.so` only). Eon remains Ubuntu/WSL2 (+ optional CUDA) acceleration candidate. Neither is claimed ready.
 
 **Jolt 3D / FlyGym** — pin fetched locally via `fetch_jolt_pin.ps1` (gitignored `JoltPhysics/`). Default build uses analytic `SphereWorld` sphere/floor contacts (past INTERFACE-only scaffolding). CMake `-DBENCH_WITH_JOLT=ON` links upstream Jolt on this MinGW UCRT64 checkout (verified). Embodiment boundary unchanged: `jolt_and_mujoco_share_contacts = false`. FlyGym assets / shared contacts are not claimed done.
+
+**Machines** — `machine-shred`, `machine-press`, and `machine-rollers` in `native/src/sims/machines.hpp`. Live 2D machines that grind blocks into sand: teeth, a press, and a roller nip. The films people know of this kind are baked 3D shots; these step while you watch.
+
+**Sand** — `sand-pour`, `sand-hourglass`, and `sand-ball` in `native/src/sims/sand.hpp`. A pour, an hourglass, and a linked ball that slumps when its links stretch. They step live. A bake is not used; a few hundred grains do not need one.
+
+**Satisfying 2D** — fifteen scenes. The first six are in `native/src/sims/satisfy.hpp` (`satisfy-grow`, `satisfy-blocks`, `satisfy-bowl`, `satisfy-fill`, `satisfy-spiral`, `satisfy-water`). Nine more are in `satisfy_more.hpp`: a pegboard column race, a polygon that gains a side each bounce, a growing square, two colours claiming dots, glass that speeds the ball up, jumps on a beat, walls that close in, a kaleidoscope of one ball, and an escape that spawns three more. Original rules from reference photos. Source only; the 2026-09-23 binaries above do not include them.

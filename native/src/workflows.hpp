@@ -37,6 +37,28 @@ inline const std::vector<Workflow>& workflows() {
         {"boids", "Balance flocking forces", "Compare separation, alignment and cohesion. Measurements shows order and spacing together.", "Disturb flock", {"size","separation","alignment","cohesion","radius"}, true},
         {"particles", "Explore particle interactions", "Tune the interaction radius, core repulsion and damping; use trails to follow the motion.", "Disturb particles", {"size","rmax","beta","friction","force"}, true},
         {"collision2d", "Watch disks collide", "Choose a scene. Restitution 1 is the elastic case the oracle checks; lower values keep less of the closing speed. Saving stores these settings, not live positions.", "Disturb disks", {"preset","restitution","seed"}, true},
+        {"flyarena", "Watch the fly walk", "Choose a scene and controller. Click to move the odor or light source. Rock count applies to the obstacles scene.", "Move the source", {"scene","controller","speed"}, true},
+        {"satisfy-grow", "Watch the ball become the circle", "It grows on every bounce. Speed and growth apply while it runs. Click to kick it.", "Kick the ball", {"speed","growth"}, true},
+        {"satisfy-blocks", "Watch the rings fall inward", "The striker peels squares from the outside in. They stack under the circle. Click to knock one loose.", "Knock a block", {"rate"}, true},
+        {"satisfy-bowl", "Watch the bowl close", "Capsules drop in and the ring shrinks toward the fill target. Click to drop one more.", "Drop a capsule", {"interval","target"}, true},
+        {"satisfy-fill", "Watch the trails cover the disc", "Gravity bends the path. The run ends when the painted trails fill the circle. Click to nudge the ball.", "Nudge the ball", {"speed","width"}, true},
+        {"satisfy-spiral", "Watch it speed up toward the center", "The bead accelerates along the spiral. The ticks are the path so far. Click to boost it.", "Boost", {"accel"}, true},
+        {"satisfy-water", "Watch each fall add a water ball", "The drop runs the sawtooth spiral. Every time it falls off the inner end, the pool gains one ball. Click to add one.", "Add a water ball", {"speed","target"}, true},
+        {"satisfy-columns", "See which column fills first", "Balls fall through the pegs into thirteen columns. Spread moves where a drop starts. Click to drop one.", "Drop a ball", {"rate","spread"}, true},
+        {"satisfy-sides", "Watch the polygon become a circle", "It starts as a triangle. Every bounce adds a side, and 48 sides is the circle. Click to add a side.", "Add a side", {"speed","seed"}, true},
+        {"satisfy-square", "Watch the square grow", "The square grows each time it hits the frame, and leaves its outline behind. Click to kick it.", "Kick the square", {"speed","growth"}, true},
+        {"satisfy-claim", "Watch the two colours claim dots", "A dot takes the colour of the mover that touches it. Click to claim the nearest dot.", "Claim a dot", {"speed","seed"}, true},
+        {"satisfy-glass", "Watch the ball speed up", "Every tile it breaks adds speed. The outer frame does not. Click to boost it.", "Boost", {"speed","accel"}, true},
+        {"satisfy-beat", "Watch it land on the beat", "The ball hops from note to note. A taller note is a higher jump. Click to skip ahead.", "Skip a note", {"tempo","seed"}, true},
+        {"satisfy-shrink", "Watch the walls close in", "All four walls step inward on every bounce. Click to kick the ball.", "Kick the ball", {"speed","shrink"}, true},
+        {"satisfy-kaleido", "Watch one ball fill the circle", "The picture is that single path, copied around the centre. Click to nudge it.", "Nudge the ball", {"speed","folds"}, true},
+        {"satisfy-escape", "Watch one escape become three", "A ball that leaves through the gap is replaced by three inside. Click to add three.", "Spawn three", {"speed","gap"}, true},
+        {"sand-pour", "Watch sand pile up", "Grains fall from the spout and settle into a slope. Click to dump a handful.", "Dump sand", {"rate","spread","flow"}, true},
+        {"sand-hourglass", "Watch the hourglass drain", "Sand starts in the upper bulb. The neck width changes how fast it falls. Click to add sand.", "Add sand", {"gap","flow"}, true},
+        {"sand-ball", "Watch a linked sand ball slump", "Neighbours start linked. A link breaks when it stretches, and the ball becomes a pile. Click to tear it.", "Tear links", {"break","range"}, true},
+        {"machine-shred", "Watch blocks get shredded", "Blocks fall into moving teeth and come out as colored sand. Click to break off a little sand.", "Break off sand", {"speed","teeth"}, true},
+        {"machine-press", "Watch the plate crush a block", "The plate grinds down through the block and the crumbs spill out the sides. Click to break off a little sand.", "Break off sand", {"speed","bite"}, true},
+        {"machine-rollers", "Watch the rollers grind", "Blocks drop through the nip and fall out as sand. Click to break off a little sand.", "Break off sand", {"speed","gap"}, true},
         {"pps", "Explore local turning", "Change fixed turn, neighbour-dependent turn and movement speed independently.", "Disturb particles", {"size","alpha","beta","v","r"}, true},
         {"gridworld", "Teach an agent a route", "Train by episode. Compare route length and reward; keep a run before changing exploration.", "", {"epsilon","alpha","gamma","size"}},
         {"netviz", "Look inside a learning network", "Drag nodes to rearrange the diagram. Select an XOR example and follow its activations.", "New weights", {"showcase","hidden","lr"}},
@@ -86,6 +108,28 @@ inline std::string catalog_title(const std::string& id) {
     if (id == "boids") return "Boids";
     if (id == "particles") return "Particle Life";
     if (id == "collision2d") return "Particle Collision Lab";
+    if (id == "flyarena") return "Fly Arena (reactive stub)";
+    if (id == "satisfy-grow") return "Ball grows into the circle";
+    if (id == "satisfy-blocks") return "Blocks fall toward the center";
+    if (id == "satisfy-bowl") return "Bowl closes as it fills";
+    if (id == "satisfy-fill") return "Trails fill the circle";
+    if (id == "satisfy-spiral") return "Spiral speeds to the center";
+    if (id == "satisfy-water") return "Water balls on a spiral";
+    if (id == "satisfy-columns") return "Which column fills first";
+    if (id == "satisfy-sides") return "Every bounce adds a side";
+    if (id == "satisfy-square") return "The square grows on each bounce";
+    if (id == "satisfy-claim") return "Dots join the side they touch";
+    if (id == "satisfy-glass") return "Shattering glass speeds the ball";
+    if (id == "satisfy-beat") return "Lands on every beat";
+    if (id == "satisfy-shrink") return "Walls close in on each bounce";
+    if (id == "satisfy-kaleido") return "One ball, mirrored";
+    if (id == "satisfy-escape") return "Each escape spawns three balls";
+    if (id == "sand-pour") return "Sand pour";
+    if (id == "sand-hourglass") return "Sand hourglass";
+    if (id == "sand-ball") return "Linked sand ball";
+    if (id == "machine-shred") return "Block shredder";
+    if (id == "machine-press") return "Block press";
+    if (id == "machine-rollers") return "Roller mill";
     if (id == "pps") return "Primordial Particle System";
     if (id == "gridworld") return "Q-learning gridworld";
     if (id == "netviz") return "Neural network, live";

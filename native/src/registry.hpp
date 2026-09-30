@@ -10,6 +10,10 @@
 #include "sims/small_lattice.hpp"
 #include "sims/continuous.hpp"
 #include "sims/collision.hpp"
+#include "sims/satisfy.hpp"
+#include "sims/satisfy_more.hpp"
+#include "sims/sand.hpp"
+#include "sims/machines.hpp"
 #include "sims/fly_arena.hpp"
 #include "sims/pps.hpp"
 #include "sims/langton_loops.hpp"
@@ -76,6 +80,27 @@ inline const std::vector<Entry>& registry() {
         {"boids",     "Continuous space",     "sims/continuous.hpp",   []{ return make_boids(); },           900},
         {"particles", "Continuous space",     "sims/continuous.hpp",   []{ return make_particle_life(); },  1200},
         {"collision2d","Continuous space",    "sims/collision.hpp",    []{ return make_collision(); },         30},
+        {"satisfy-grow",   "Satisfying 2D", "sims/satisfy.hpp", []{ return make_satisfy_grow(); },    20},
+        {"satisfy-blocks", "Satisfying 2D", "sims/satisfy.hpp", []{ return make_satisfy_blocks(); },  40},
+        {"satisfy-bowl",   "Satisfying 2D", "sims/satisfy.hpp", []{ return make_satisfy_bowl(); },    30},
+        {"satisfy-fill",   "Satisfying 2D", "sims/satisfy.hpp", []{ return make_satisfy_fill(); },    30},
+        {"satisfy-spiral", "Satisfying 2D", "sims/satisfy.hpp", []{ return make_satisfy_spiral(); },  30},
+        {"satisfy-water",  "Satisfying 2D", "sims/satisfy.hpp", []{ return make_satisfy_water(); },   40},
+        {"satisfy-columns","Satisfying 2D", "sims/satisfy_more.hpp", []{ return make_satisfy_columns(); }, 30},
+        {"satisfy-sides",  "Satisfying 2D", "sims/satisfy_more.hpp", []{ return make_satisfy_sides(); },   20},
+        {"satisfy-square", "Satisfying 2D", "sims/satisfy_more.hpp", []{ return make_satisfy_square(); },  30},
+        {"satisfy-claim",  "Satisfying 2D", "sims/satisfy_more.hpp", []{ return make_satisfy_claim(); },   40},
+        {"satisfy-glass",  "Satisfying 2D", "sims/satisfy_more.hpp", []{ return make_satisfy_glass(); },   20},
+        {"satisfy-beat",   "Satisfying 2D", "sims/satisfy_more.hpp", []{ return make_satisfy_beat(); },    20},
+        {"satisfy-shrink", "Satisfying 2D", "sims/satisfy_more.hpp", []{ return make_satisfy_shrink(); },  20},
+        {"satisfy-kaleido","Satisfying 2D", "sims/satisfy_more.hpp", []{ return make_satisfy_kaleido(); }, 30},
+        {"satisfy-escape", "Satisfying 2D", "sims/satisfy_more.hpp", []{ return make_satisfy_escape(); },  40},
+        {"sand-pour",      "Sand", "sims/sand.hpp", []{ return make_sand_pour(); },      20},
+        {"sand-hourglass", "Sand", "sims/sand.hpp", []{ return make_sand_hourglass(); }, 30},
+        {"sand-ball",      "Sand", "sims/sand.hpp", []{ return make_sand_ball(); },      20},
+        {"machine-shred",  "Machines", "sims/machines.hpp", []{ return make_machine_shredder(); }, 25},
+        {"machine-press",  "Machines", "sims/machines.hpp", []{ return make_machine_press(); },    20},
+        {"machine-rollers","Machines", "sims/machines.hpp", []{ return make_machine_rollers(); },  25},
         {"flyarena",  "Continuous space",    "sims/fly_arena.hpp",    []{ return make_fly_arena(); },        120},
         {"pps",       "Continuous space",     "sims/pps.hpp",          []{ return make_pps(); },             900},
 

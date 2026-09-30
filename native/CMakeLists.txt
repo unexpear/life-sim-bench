@@ -148,6 +148,14 @@ if(NOT MSVC)
 endif()
 add_test(NAME collision COMMAND bench_collision)
 
+add_executable(bench_satisfy src/satisfy_test.cpp)
+target_include_directories(bench_satisfy PRIVATE src)
+target_link_options(bench_satisfy PRIVATE ${STATIC_CXX})
+if(NOT MSVC)
+    target_compile_options(bench_satisfy PRIVATE -Wall -Wextra)
+endif()
+add_test(NAME satisfy COMMAND bench_satisfy)
+
 add_executable(bench_sapling src/sapling_test.cpp)
 target_include_directories(bench_sapling PRIVATE src)
 target_link_options(bench_sapling PRIVATE ${STATIC_CXX})
@@ -301,7 +309,7 @@ endif()
 # Box2D for every target that can include the collision lab via the registry.
 foreach(_bench_tgt bench_selftest bench_rendering bench_projects bench_sheet bench_stress
                    test_biomes test_craft test_fluids test_light test_mobs test_planet test_traffic test_traffic_idm
-                   bench_workflows bench_locomotion bench_sorting bench_collision bench_sapling bench_fly bench_jolt_stub
+                   bench_workflows bench_locomotion bench_sorting bench_collision bench_satisfy bench_sapling bench_fly bench_jolt_stub
                    example_plugin bench_plugin_test bench_run bench_rulestrings bench_runner_test
                    bench_worker_test bench_make_icon bench_sweep workbench bench_ui_shot)
   bench_link_box2d(${_bench_tgt})
